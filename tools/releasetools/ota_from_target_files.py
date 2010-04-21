@@ -138,6 +138,9 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
       Limit the MOTD to x characters per line (fixes a flashing problem)
       Default 48 (chosen from the Evo)
 
+  --override_device <device>
+      Override device-specific asserts. Can be a comma-separated list.
+
 """
 
 from __future__ import print_function
@@ -192,6 +195,7 @@ OPTIONS.extracted_input = None
 OPTIONS.key_passwords = []
 OPTIONS.motd = None
 OPTIONS.motdLim = 48
+OPTIONS.override_device = 'auto'
 
 METADATA_NAME = 'META-INF/com/android/metadata'
 UNZIP_PATTERN = ['IMAGES/*', 'META/*']
@@ -207,7 +211,10 @@ def SignOutput(temp_zip_name, output_zip_name):
 def AppendAssertions(script, info_dict, oem_dicts=None):
   oem_props = info_dict.get("oem_fingerprint_properties")
   if not oem_props:
-    device = GetBuildProp("ro.product.device", info_dict)
+    if OPTIONS.override_device == "auto":
+      device = GetBuildProp("ro.product.device", info_dict)
+    else:
+      device = OPTIONS.override_device
     script.AssertDevice(device)
   else:
     if not oem_dicts:
@@ -1354,6 +1361,8 @@ def main(argv):
       OPTIONS.motd = a
     elif o in ("--motd-limit"):
       OPTIONS.motdLim = a
+    elif o in ("--override_device"):
+      OPTIONS.override_device = a
     else:
       return False
     return True
@@ -1387,6 +1396,7 @@ def main(argv):
                                  "extracted_input_target_files=",
                                  "motd=",
                                  "motd-limit=",
+                                 "override_device=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:
