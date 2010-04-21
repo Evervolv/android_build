@@ -132,6 +132,9 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
       Limit the MOTD to x characters per line (fixes a flashing problem)
       Default 48 (chosen from the Evo)
 
+  --override_device <device>
+      Override device-specific asserts. Can be a comma-separated list.
+
 """
 
 import sys
@@ -184,6 +187,7 @@ OPTIONS.payload_signer = None
 OPTIONS.payload_signer_args = []
 OPTIONS.motd = None
 OPTIONS.motdLim = 48
+OPTIONS.override_device = 'auto'
 
 def MostPopularKey(d, default):
   """Given a dict, return the key corresponding to the largest
@@ -471,7 +475,10 @@ def SignOutput(temp_zip_name, output_zip_name):
 def AppendAssertions(script, info_dict, oem_dict=None):
   oem_props = info_dict.get("oem_fingerprint_properties")
   if oem_props is None or len(oem_props) == 0:
-    device = GetBuildProp("ro.product.device", info_dict)
+    if OPTIONS.override_device == "auto":
+      device = GetBuildProp("ro.product.device", info_dict)
+    else:
+      device = OPTIONS.override_device
     script.AssertDevice(device)
   else:
     if oem_dict is None:
@@ -1995,7 +2002,8 @@ def main(argv):
       OPTIONS.motd = a
     elif o in ("--motd-limit"):
       OPTIONS.motdLim = a
->>>>>>> f89389b... Merge: Add MOTD option in updater-script.
+    elif o in ("--override_device"):
+      OPTIONS.override_device = a
     else:
       return False
     return True
@@ -2029,6 +2037,7 @@ def main(argv):
                                  "payload_signer_args=",
                                  "motd=",
                                  "motd-limit=",
+                                 "override_device=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:
