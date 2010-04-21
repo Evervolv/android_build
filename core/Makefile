@@ -4448,6 +4448,7 @@ endif
 ifdef DEVICE_MANIFEST_FILE
 	$(hide) echo "vintf_include_empty_vendor_sku=true" >> $@
 endif
+	$(hide) echo "ota_override_device=$(OTA_SCRIPT_OVERRIDE_DEVICE)" >> $@
 
 .PHONY: misc_info
 misc_info: $(INSTALLED_MISC_INFO_TARGET)
@@ -4493,6 +4494,12 @@ $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_OTA_TOOLS := $(built_ota_tools)
 
 tool_extension := $(wildcard $(tool_extensions)/releasetools.py)
 $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_TOOL_EXTENSION := $(tool_extension)
+
+ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
+    OTA_SCRIPT_OVERRIDE_DEVICE := auto
+else
+    OTA_SCRIPT_OVERRIDE_DEVICE := $(TARGET_OTA_ASSERT_DEVICE)
+endif
 
 ifeq ($(AB_OTA_UPDATER),true)
 updater_dep := system/update_engine/update_engine.conf
