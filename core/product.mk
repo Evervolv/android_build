@@ -171,6 +171,11 @@ _product_list_vars += PRODUCT_ODM_PROPERTIES
 # The characteristics of the product, which among other things is passed to aapt
 _product_single_value_vars += PRODUCT_CHARACTERISTICS
 
+# A list of property assignments, like "key = value", with zero or more
+# whitespace characters on either side of the '='.
+# used for overriding properties in build.prop
+_product_var_list += PRODUCT_BUILD_PROP_OVERRIDES
+
 # A list of words like <source path>:<destination path>[:<owner>].
 # The file at the source path should be copied to the destination path
 # when building  this product.  <destination path> is relative to
