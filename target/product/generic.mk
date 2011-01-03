@@ -29,6 +29,7 @@ PRODUCT_PACKAGES := \
     DrmProvider \
     Email \
     EVParts \
+    FileManager \
     Gallery3D \
     LatinIME \
     Launcher2 \
