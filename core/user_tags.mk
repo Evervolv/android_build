@@ -122,12 +122,6 @@ GRANDFATHERED_USER_MODULES += \
 	fw_bcm4329_apsta.bin \
 	fw_bcm4329.bin \
 	genext2fs \
-	gralloc.default \
-	gralloc.msm7x30 \
-	fs_get_stats \
-	fw_bcm4329_apsta.bin \
-	fw_bcm4329.bin \
-	genext2fs \
 	gps.mahimahi \
 	gralloc.default \
 	gralloc.qsd8k \
