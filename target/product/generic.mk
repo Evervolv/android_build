@@ -37,7 +37,6 @@ PRODUCT_PACKAGES := \
     Music \
     Protips \
     Settings \
-    Superuser \
     Sync \
     SystemUI \
     Updater \
