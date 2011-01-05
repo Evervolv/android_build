@@ -233,7 +233,7 @@ ifneq (,$(user_variant))
   endif
 
   # Disallow mock locations by default for user builds
-  ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=0
+  ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 
 else # !user_variant
   # Turn on checkjni for non-user builds.
