@@ -44,10 +44,6 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
   -e  (--extra_script)  <file>
       Insert the contents of file at the end of the update script.
 
-  --backup <boolean>
-      Enable or disable the execution of backuptool.sh.
-      Disabled by default.
-
   --noboot <boolean>
       Disable the creation of boot.img
       Disable by default.
@@ -87,7 +83,6 @@ OPTIONS.wipe_user_data = False
 OPTIONS.omit_prereq = False
 OPTIONS.extra_script = None
 OPTIONS.worker_threads = 3
-OPTIONS.backuptool = False
 OPTIONS.noboot = False
 OPTIONS.recovery = False
 
@@ -384,8 +379,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   AppendAssertions(script, input_zip)
   device_specific.FullOTA_Assertions()
-  if OPTIONS.backuptool:
-    script.RunBackup("backup")
 
   script.ShowProgress(0.5, 0)
 
@@ -416,10 +409,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
     common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
     common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
     script.ShowProgress(0.2, 0)
-
-  if OPTIONS.backuptool:
-    script.ShowProgress(0.2, 10)
-    script.RunBackup("restore")
 
   if not OPTIONS.noboot:
     script.ShowProgress(0.2, 10)
@@ -738,9 +727,7 @@ def main(argv):
       OPTIONS.extra_script = a
     elif o in ("--worker_threads"):
       OPTIONS.worker_threads = int(a)
-    elif o in ("--backup"):
-      OPTIONS.backuptool = bool(a.lower() == 'true')
-    elif o in ("--noboot"):
+    elif o in ("--no-boot"):
       OPTIONS.noboot = bool(a.lower() == 'true')
     elif o in ("--recovery"):
       OPTIONS.recovery = bool(a.lower() == 'true')
@@ -758,8 +745,7 @@ def main(argv):
                                               "extra_script=",
                                               "worker_threads=",
                                               "noboot=",
-                                              "recovery=",
-                                              "backup="],
+                                              "recovery="],
                              extra_option_handler=option_handler)
 
   if len(args) != 2:
@@ -824,4 +810,3 @@ if __name__ == '__main__':
     print "   ERROR: %s" % (e,)
     print
     sys.exit(1)
-
