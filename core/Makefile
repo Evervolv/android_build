@@ -1074,6 +1074,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
 	$(hide) ./build/tools/releasetools/ota_from_target_files -v \
 	   -p $(HOST_OUT) \
            -k $(KEY_CERT_PAIR) \
+           --motd $(PRODUCT_MOTD) \
            $(BUILT_TARGET_FILES_PACKAGE) $@
 
 .PHONY: otapackage
@@ -1414,3 +1415,4 @@ $(INTERNAL_FINDBUGS_HTML_TARGET): $(INTERNAL_FINDBUGS_XML_TARGET)
 # -----------------------------------------------------------------
 # These are some additional build tasks that need to be run.
 include $(sort $(wildcard $(BUILD_SYSTEM)/tasks/*.mk))
+
