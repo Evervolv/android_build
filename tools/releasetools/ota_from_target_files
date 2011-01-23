@@ -390,20 +390,25 @@ def WriteFullOTAPackage(input_zip, output_zip):
   device_specific.FullOTA_Assertions()
 
   if (OPTIONS.motd != None):
-    rawMotd = OPTIONS.motd.split()
-    sizedMotd = []
-    for word in rawMotd:
-      sizedMotd += [word[i:i+OPTIONS.motdLim] for i in range(0, len(word), OPTIONS.motdLim)]
-    sizedMotd.reverse()
-    motdLine = [sizedMotd.pop()]
-    sizedMotd.reverse()
-    for word in sizedMotd:
-      if ( (motdLine[len(motdLine)-1].__len__() + word.__len__()) < 48):
-        motdLine[len(motdLine)-1] = motdLine[len(motdLine)-1] + " " + word
+    eachRawMotd = OPTIONS.motd.split("\\n")
+    for eachMotd in eachRawMotd:
+      rawMotd = eachMotd.split()
+      sizedMotd = []
+      for word in rawMotd:
+        sizedMotd += [word[i:i+OPTIONS.motdLim] for i in range(0, len(word), OPTIONS.motdLim)]
+      sizedMotd.reverse()
+      if len(sizedMotd):
+        motdLine = [sizedMotd.pop()]
       else:
-        motdLine.append(word)
-    for line in motdLine:
-      script.Print(line)
+        motdLine = [""]
+      sizedMotd.reverse()
+      for word in sizedMotd:
+        if ( (motdLine[len(motdLine)-1].__len__() + word.__len__()) < 48):
+          motdLine[len(motdLine)-1] = motdLine[len(motdLine)-1] + " " + word
+        else:
+          motdLine.append(word)
+      for line in motdLine:
+        script.Print(line)
 
   script.ShowProgress(0.5, 0)
 
