@@ -415,7 +415,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
 
-  script.FormatPartition("system")
+  script.FormatPartition("/system")
   script.Mount("/system")
   if OPTIONS.recovery:
     script.UnpackPackageDir("recovery", "/system")
