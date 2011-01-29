@@ -62,6 +62,7 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
 """
 
 import sys
+import os
 
 if sys.hexversion < 0x02040000:
   print >> sys.stderr, "Python 2.4 or newer is required."
@@ -304,6 +305,10 @@ def SignOutput(temp_zip_name, output_zip_name):
   common.SignFile(temp_zip_name, output_zip_name, OPTIONS.package_key, pw,
                   whole_file=True)
 
+# Printing of md5sum added for Evervolv by cocide
+  print "############ md5sum ############\n"
+  os.system("md5sum " + output_zip_name)
+  print "\n################################"
 
 def AppendAssertions(script, input_zip):
   device = GetBuildProp("ro.product.device", input_zip)
@@ -389,6 +394,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   AppendAssertions(script, input_zip)
   device_specific.FullOTA_Assertions()
 
+# MOTD during flash added for Evervolv by cocide
   if (OPTIONS.motd != None):
     eachRawMotd = OPTIONS.motd.split("\\n")
     for eachMotd in eachRawMotd:
@@ -414,19 +420,29 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   if OPTIONS.wipe_user_data:
     script.FormatPartition("/data")
+# Comments during install added for Evervolv by cocide
+    script.Print("Wiping user data")
 
   script.FormatPartition("/system")
+# Comments during install added for Evervolv by cocide
+  script.Print("Formatting system")
   script.Mount("/system")
   if OPTIONS.recovery:
     script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
+# Comments during install added for Evervolv by cocide
+  script.Print("Installing Evervolv")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
+# Comments during install added for Evervolv by cocide
+  script.Print("Creating symlinks")
 
+# Optional boot.img flashing modified for Evervol by cocide
   if not OPTIONS.noboot:
     boot_img = common.File("boot.img", common.BuildBootableImage(
         os.path.join(OPTIONS.input_tmp, "BOOT")))
+# Optional recovery.img flashing modified for Evervol by cocide
   if OPTIONS.recovery:
     recovery_img = common.File("recovery.img", common.BuildBootableImage(
         os.path.join(OPTIONS.input_tmp, "RECOVERY")))
@@ -434,15 +450,20 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   Item.GetMetadata(input_zip)
   Item.Get("system").SetPermissions(script)
+# Comments during install added for Evervolv by cocide
+  script.Print("Setting permissions")
 
   if not OPTIONS.noboot:
     common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
     common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+# Comments during install added for Evervolv by cocide
     script.ShowProgress(0.2, 0)
 
   if not OPTIONS.noboot:
     script.ShowProgress(0.2, 10)
     script.WriteRawImage("/boot", "boot.img")
+# Comments during install added for Evervolv by cocide
+    script.Print("Installing boot.img")
 
   script.ShowProgress(0.1, 0)
   device_specific.FullOTA_InstallEnd()
