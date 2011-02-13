@@ -1059,7 +1059,7 @@ ifneq ($(TARGET_NO_KERNEL),true)
 # -----------------------------------------------------------------
 # OTA update package
 
-name := $(PRODUCT_CODENAME)
+name := Evervolv-$(PRODUCT_CODENAME)
 ifeq ($(TARGET_BUILD_TYPE),debug)
   name := $(name)_debug
 endif
