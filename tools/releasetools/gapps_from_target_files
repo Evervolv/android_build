@@ -1,0 +1,230 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2008 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+Given a target-files zipfile, produces an GAPPS package_name that installs
+GAPPS.
+
+Usage:  gapps_from_target_files [flags] input_target_files output_gapps_package_name
+
+"""
+
+import sys
+import os
+
+if sys.hexversion < 0x02040000:
+  print >> sys.stderr, "Python 2.4 or newer is required."
+  sys.exit(1)
+
+import copy
+import errno
+import getopt
+import os
+import re
+import hashlib
+import shutil
+import subprocess
+import tempfile
+import time
+import zipfile
+import string
+import fileinput
+import common
+import datetime
+import time
+
+
+class Options(object): pass
+OPTIONS = Options()
+OPTIONS.tempfiles = []
+OPTIONS.verbose = False
+OPTIONS.package_name = False
+OPTIONS.directory = False
+OPTIONS.source = False
+OPTIONS.directory = sys.path[0] + "/"
+OPTIONS.info_dict = False
+OPTIONS.input_zip = False
+OPTIONS.package_key = "build/target/product/security/testkey"
+
+class ExternalError(RuntimeError): pass
+
+
+def Usage(docstring):
+  print docstring.rstrip("\n")
+
+def Run(args, **kwargs):
+  """Create and return a subprocess.Popen object, printing the command
+  line on the terminal if -v was specified."""
+  if OPTIONS.verbose:
+    print "  running: ", " ".join(args)
+  return subprocess.Popen(args, **kwargs)
+
+
+def CreateTmpDir():
+  """Create a tem directory to work in."""
+
+  tmp = tempfile.mkdtemp(prefix="evervolv-gapps-")
+  OPTIONS.tempfiles.append(tmp)
+  return tmp
+
+def CreateDir(directory):
+  """Create a directory."""
+
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+  return
+
+def MakeZip(files, zip_name):
+  """Creates a zip with the files given"""
+
+
+  oldwd = os.getcwd()
+  os.chdir(files)
+
+  cmd = ["zip", "-r", zip_name, "."]
+  p = Run(cmd, stdout=subprocess.PIPE)
+  p.communicate()
+  if p.returncode != 0:
+    raise ExternalError("failed to zip \"%s\"" %
+                        (files,) + " to \"%s\"" %(zip_name,))
+
+  os.chdir(oldwd)
+  return
+
+def SignOutput(temp_zip_name, output_zip_name):
+  key_passwords = common.GetKeyPasswords([OPTIONS.package_key])
+  pw = key_passwords[OPTIONS.package_key]
+
+  common.SignFile(temp_zip_name, output_zip_name, OPTIONS.package_key, pw,
+                  whole_file=True)
+
+def UpdateDirectory(source, dest):
+  """copy files from source to dest"""
+
+  cmd = ["cp", "-r", source, dest]
+  p = Run(cmd, stdout=subprocess.PIPE)
+  p.communicate()
+  if p.returncode != 0:
+    raise ExternalError("failed to copy \"%s\"" %
+                        (source,) + " to \"%s\"" %(dest,))
+  return
+
+
+
+def Cleanup():
+  for i in OPTIONS.tempfiles:
+    if os.path.isdir(i):
+      shutil.rmtree(i)
+    else:
+      os.remove(i)
+
+
+def ParseOptions(argv, docstring):
+  """Parse the options in argv and return any arguments that aren't
+  flags.  docstring is the calling module's docstring, to be displayed
+  for errors and -h.  extra_opts and extra_long_opts are for flags
+  defined by the caller, which are processed by passing them to
+  extra_option_handler."""
+
+  try:
+    opts, args = getopt.getopt(
+        argv, "vp:s:d:i:",
+        ["verbose", "package_name", "source", "directory", "input"])
+  except getopt.GetoptError, err:
+    Usage(docstring)
+    print "**", str(err), "**"
+    sys.exit(2)
+
+  for o, a in opts:
+    if o in ("-h", "--help"):
+      Usage(docstring)
+      sys.exit()
+    elif o in ("-v", "--verbose"):
+      OPTIONS.verbose = True
+    elif o in ("-s", "--source"):
+      OPTIONS.source = a
+    elif o in ("-d", "--directory"):
+      OPTIONS.directory = a
+    elif o in ("-p", "--package_name"):
+      OPTIONS.package_name = a
+    elif o in ("-i", "--input"):
+      OPTIONS.input_zip = a
+    else:
+      assert False, "unknown option \"%s\"" % (o,)
+
+  return True
+
+def main(argv):
+
+  if not ParseOptions(argv, __doc__):
+    Usage(__doc__)
+    sys.exit(1)
+
+  files_to_remove = []
+
+  for dirname, dirnames, filenames in os.walk(OPTIONS.source):
+    for filename in filenames:
+      files_to_remove.append (os.path.join(dirname, filename).replace(OPTIONS.source, ""))
+
+
+  input_zip = zipfile.ZipFile(OPTIONS.input_zip, "r")
+  OPTIONS.info_dict = common.LoadInfoDict(input_zip)
+
+  OPTIONS.working_dir = CreateTmpDir()
+  UpdateDirectory(OPTIONS.source, OPTIONS.working_dir)
+  CreateDir(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
+  UpdateDirectory(OPTIONS.directory + "/utilities/update-binary", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
+
+  system_type, system_device = common.GetTypeAndDevice("/system", OPTIONS.info_dict)
+
+
+  FILE = open(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/updater-script","w")
+  FILE.write("ui_print(\"Installing GAPPS..\");\nmount(\"" + system_type + "\", \"" + system_device + "\", \"/system\");\nshow_progress(1, 15);\n")
+  FILE.write("delete(")
+  filename = files_to_remove.pop()
+  FILE.write("\"" + filename + "\"")
+  for filename in files_to_remove:
+    FILE.write(", \"" + filename + "\"")
+  FILE.write(")\n")
+  FILE.write("package_extract_dir(\"system\", \"/system\");\nui_print(\"GAPPS Installation complete!\");\nunmount(\"/system\");")
+  FILE.close()
+
+  today = datetime.date.today()
+
+  MakeZip(OPTIONS.working_dir + "/GAPPS", "../" + OPTIONS.package_name + ".zip")
+
+  true_file_name = OPTIONS.directory + "/GApps-" + OPTIONS.package_name + today.strftime("-%Y%m%d") + ".zip"
+
+  SignOutput(OPTIONS.working_dir + "/" + OPTIONS.package_name + ".zip", true_file_name)
+
+  print "############ md5sum ############\n"
+  os.system("md5sum " + true_file_name + " > " + true_file_name + ".md5sum")
+  os.system("cat " + true_file_name + ".md5sum")
+  print "\n################################"
+
+  Cleanup()
+
+  print "done"
+
+if __name__ == '__main__':
+  try:
+    main(sys.argv[1:])
+  except ExternalError, e:
+    print
+    print "   ERROR: %s" % (e,)
+    print
+    sys.exit(1)
+
