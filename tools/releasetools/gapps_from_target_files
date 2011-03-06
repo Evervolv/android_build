@@ -57,6 +57,7 @@ OPTIONS.source = False
 OPTIONS.directory = sys.path[0] + "/"
 OPTIONS.info_dict = False
 OPTIONS.input_zip = False
+OPTIONS.rom_zip = False
 OPTIONS.package_key = "build/target/product/security/testkey"
 
 class ExternalError(RuntimeError): pass
@@ -86,6 +87,19 @@ def CreateDir(directory):
   if not os.path.exists(directory):
     os.makedirs(directory)
   return
+
+def UnzipTemp(filename):
+  """Unzip the given archive into a temporary directory and return the name."""
+
+  tmp = tempfile.mkdtemp(prefix="evervolv-gapps-")
+  OPTIONS.tempfiles.append(tmp)
+  cmd = ["unzip", "-o", "-q", filename, "-d", tmp]
+  p = Run(cmd, stdout=subprocess.PIPE)
+  p.communicate()
+  if p.returncode != 0:
+    raise ExternalError("failed to unzip input target-files \"%s\"" %
+                        (filename,))
+  return tmp
 
 def MakeZip(files, zip_name):
   """Creates a zip with the files given"""
@@ -141,8 +155,8 @@ def ParseOptions(argv, docstring):
 
   try:
     opts, args = getopt.getopt(
-        argv, "vp:s:d:i:",
-        ["verbose", "package_name", "source", "directory", "input"])
+        argv, "vp:s:d:i:r:",
+        ["verbose", "package_name", "source", "directory", "input", "rom"])
   except getopt.GetoptError, err:
     Usage(docstring)
     print "**", str(err), "**"
@@ -162,6 +176,8 @@ def ParseOptions(argv, docstring):
       OPTIONS.package_name = a
     elif o in ("-i", "--input"):
       OPTIONS.input_zip = a
+    elif o in ("-r", "--rom"):
+      OPTIONS.rom_zip = a
     else:
       assert False, "unknown option \"%s\"" % (o,)
 
@@ -186,7 +202,10 @@ def main(argv):
   OPTIONS.working_dir = CreateTmpDir()
   UpdateDirectory(OPTIONS.source, OPTIONS.working_dir)
   CreateDir(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
-  UpdateDirectory(OPTIONS.directory + "/utilities/update-binary", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
+
+  zipdir = UnzipTemp(OPTIONS.rom_zip)
+
+  UpdateDirectory(zipdir + "/META-INF/com/google/android/update-binary", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
 
   system_type, system_device = common.GetTypeAndDevice("/system", OPTIONS.info_dict)
 
