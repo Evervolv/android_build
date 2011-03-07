@@ -34,7 +34,6 @@ rm -f vendor/evervolv/GAPPS/system/app/googlevoice.apk
 rm -f vendor/evervolv/GAPPS/system/app/kickback.apk
 rm -f vendor/evervolv/GAPPS/system/app/soundback.apk
 rm -f vendor/evervolv/GAPPS/system/app/talkback.apk
-rm -f vendor/evervolv/GAPPS/system/etc/permissions/android.software.sip.voip.xml
 rm -f vendor/evervolv/GAPPS/system/etc/permissions/com.google.android.maps.xml
 rm -f vendor/evervolv/GAPPS/system/etc/permissions/features.xml
 rm -f vendor/evervolv/GAPPS/system/framework/com.google.android.maps.jar
@@ -74,7 +73,6 @@ adb pull /system/app/kickback.apk vendor/evervolv/GAPPS/system/app/
 adb pull /system/app/soundback.apk vendor/evervolv/GAPPS/system/app/
 adb pull /system/app/talkback.apk vendor/evervolv/GAPPS/system/app/
 mkdir -p vendor/evervolv/GAPPS/system/etc/permissions
-adb pull /system/etc/permissions/android.software.sip.voip.xml vendor/evervolv/GAPPS/system/etc/permissions/
 adb pull /system/etc/permissions/com.google.android.maps.xml vendor/evervolv/GAPPS/system/etc/permissions/
 adb pull /system/etc/permissions/features.xml vendor/evervolv/GAPPS/system/etc/permissions/
 mkdir -p vendor/evervolv/GAPPS/system/framework

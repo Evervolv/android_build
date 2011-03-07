@@ -101,6 +101,14 @@ def UnzipTemp(filename):
                         (filename,))
   return tmp
 
+def GetMountString(fname):
+  for line in fileinput.FileInput(fname):
+    if "mount(" in line:
+      if """", "/system")""" in line:
+        return line
+
+  return None
+
 def MakeZip(files, zip_name):
   """Creates a zip with the files given"""
 
@@ -207,17 +215,15 @@ def main(argv):
 
   UpdateDirectory(zipdir + "/META-INF/com/google/android/update-binary", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
 
-  system_type, system_device = common.GetTypeAndDevice("/system", OPTIONS.info_dict)
-
 
   FILE = open(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/updater-script","w")
-  FILE.write("ui_print(\"Installing GAPPS..\");\nmount(\"" + system_type + "\", \"" + system_device + "\", \"/system\");\nshow_progress(1, 15);\n")
+  FILE.write("ui_print(\"Installing GApps...\");\n" + GetMountString(zipdir + "/META-INF/com/google/android/updater-script") + "show_progress(1, 15);\n")
   FILE.write("delete(")
   filename = files_to_remove.pop()
   FILE.write("\"" + filename + "\"")
   for filename in files_to_remove:
     FILE.write(", \"" + filename + "\"")
-  FILE.write(")\n")
+  FILE.write(");\n")
   FILE.write("package_extract_dir(\"system\", \"/system\");\nui_print(\"GAPPS Installation complete!\");\nunmount(\"/system\");")
   FILE.close()
 
