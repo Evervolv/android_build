@@ -223,7 +223,7 @@ def main(argv):
   FILE.write("\"" + filename + "\"")
   for filename in files_to_remove:
     FILE.write(", \"" + filename + "\"")
-  FILE.write(");\n")
+  FILE.write(", \"/system/app/ChromeToPhone.apk\", \"/system/app/com.amazon.mp3.apk\", \"/system/app/GoogleGoggles.apk\", \"/system/app/HtcCopyright.apk\", \"/system/app/HtcEmailPolicy.apk\", \"/system/app/HtcSettings.apk\", \"/system/app/PassionQuickOffice.apk\", \"/system/app/Provision.apk\", \"/system/app/QuickSearchBox.apk\");\n")
   FILE.write("package_extract_dir(\"system\", \"/system\");\nui_print(\"GAPPS Installation complete!\");\nunmount(\"/system\");")
   FILE.close()
 
