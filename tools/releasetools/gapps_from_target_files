@@ -51,13 +51,11 @@ class Options(object): pass
 OPTIONS = Options()
 OPTIONS.tempfiles = []
 OPTIONS.verbose = False
-OPTIONS.package_name = False
+OPTIONS.package_name = "GApps"
 OPTIONS.directory = False
 OPTIONS.source = False
 OPTIONS.directory = sys.path[0] + "/"
 OPTIONS.info_dict = False
-OPTIONS.input_zip = False
-OPTIONS.rom_zip = False
 OPTIONS.package_key = "build/target/product/security/testkey"
 
 class ExternalError(RuntimeError): pass
@@ -101,13 +99,6 @@ def UnzipTemp(filename):
                         (filename,))
   return tmp
 
-def GetMountString(fname):
-  for line in fileinput.FileInput(fname):
-    if "mount(" in line:
-      if """", "/system")""" in line:
-        return line
-
-  return None
 
 def MakeZip(files, zip_name):
   """Creates a zip with the files given"""
@@ -182,10 +173,6 @@ def ParseOptions(argv, docstring):
       OPTIONS.directory = a
     elif o in ("-p", "--package_name"):
       OPTIONS.package_name = a
-    elif o in ("-i", "--input"):
-      OPTIONS.input_zip = a
-    elif o in ("-r", "--rom"):
-      OPTIONS.rom_zip = a
     else:
       assert False, "unknown option \"%s\"" % (o,)
 
@@ -204,20 +191,18 @@ def main(argv):
       files_to_remove.append (os.path.join(dirname, filename).replace(OPTIONS.source, ""))
 
 
-  input_zip = zipfile.ZipFile(OPTIONS.input_zip, "r")
-  OPTIONS.info_dict = common.LoadInfoDict(input_zip)
 
   OPTIONS.working_dir = CreateTmpDir()
   UpdateDirectory(OPTIONS.source, OPTIONS.working_dir)
   CreateDir(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
+  CreateDir(OPTIONS.directory + "../GApps")
 
-  zipdir = UnzipTemp(OPTIONS.rom_zip)
-
-  UpdateDirectory(zipdir + "/META-INF/com/google/android/update-binary", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/")
+  #copy update-binary
+  UpdateDirectory(OPTIONS.directory + "system/bin/updater", OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/update-binary")
 
 
   FILE = open(OPTIONS.working_dir + "/GAPPS/META-INF/com/google/android/updater-script","w")
-  FILE.write("ui_print(\"Installing GApps...\");\n" + GetMountString(zipdir + "/META-INF/com/google/android/updater-script") + "show_progress(1, 15);\n")
+  FILE.write("ui_print(\"Installing GApps...\");\nrun_program(\"/sbin/busybox\", \"mount\", \"/system\");\nshow_progress(1, 15);\n")
   FILE.write("delete(")
   filename = files_to_remove.pop()
   FILE.write("\"" + filename + "\"")
@@ -231,7 +216,7 @@ def main(argv):
 
   MakeZip(OPTIONS.working_dir + "/GAPPS", "../" + OPTIONS.package_name + ".zip")
 
-  true_file_name = OPTIONS.directory + "/GApps-" + OPTIONS.package_name + today.strftime("-%Y%m%d") + ".zip"
+  true_file_name = OPTIONS.directory + "../GApps/GApps-" + today.strftime("%Y%m%d") + ".zip"
 
   SignOutput(OPTIONS.working_dir + "/" + OPTIONS.package_name + ".zip", true_file_name)
 

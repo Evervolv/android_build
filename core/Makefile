@@ -1127,7 +1127,6 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
            -k $(KEY_CERT_PAIR) \
            --motd $(PRODUCT_MOTD) \
            $(BUILT_TARGET_FILES_PACKAGE) $@
-	./build/tools/releasetools/gapps_from_target_files -v -r $@ -d $(PRODUCT_OUT) -p $(PRODUCT_CODENAME) -s vendor/evervolv/GAPPS -i $(BUILT_TARGET_FILES_PACKAGE)
 
 .PHONY: otapackage
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
@@ -1135,18 +1134,12 @@ bacon: otapackage
 
 # -----------------------------------------------------------------
 # OTA gapps package
-#
-#INTERNAL_GAPPS_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
-#
-#$(INTERNAL_GAPPS_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
-#
-#$(INTERNAL_GAPPS_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
-#	@echo "Package OTA: $@"
-#	$(hide) ./build/tools/releasetools/gapps_from_target_files -v -d $(PRODUCT_OUT) -p $(PRODUCT_CODENAME) -s vendor/evervolv/GAPPS -i $(BUILT_TARGET_FILES_PACKAGE)
-#
-#.PHONY: gapps
-#gapps: $(INTERNAL_GAPPS_PACKAGE_TARGET)
-#bacon: gapps
+
+.PHONY: gapps
+gapps: $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
+	./build/tools/releasetools/gapps_from_target_files -v -d $(PRODUCT_OUT)/ -s vendor/evervolv/GAPPS
+
+bacon: gapps
 
 # -----------------------------------------------------------------
 # The update package
