@@ -9,13 +9,29 @@ else
  opt=""
 fi
 
+fail=0
 for phone in $phones
 do
- if [ "gapps" != "$phone" ]
+ if [ $fail == 0 ]
  then
-  lunch $phone
-  make $opt otapackage
- else
-  make $opt gapps
+  if [ "gapps" != "$phone" ]
+  then
+   lunch $phone || fail=1
+   make $opt otapackage || fail=1
+  else
+   make $opt gapps || fail=1
+  fi
  fi
 done
+
+if [ $fail == 1 ]
+then
+ echo "---------------------------------"
+ echo "########    ###    #### ##       "
+ echo "##         ## ##    ##  ##       "
+ echo "##        ##   ##   ##  ##       "
+ echo "######   ##     ##  ##  ##       "
+ echo "##       #########  ##  ##       "
+ echo "##       ##     ##  ##  ##       "
+ echo "##       ##     ## #### ######## "
+fi
