@@ -1,83 +1,56 @@
 #!/bin/bash
 
 #script for evervolv written by cocide
-#will pull gapps related packages off the primary connected phone using adb and put the files into the gapps folder inside the repo (vendor/evervolv/GAPPS)
-echo "if you have permissions problems kill the adb server (adb kill-server) and start it again with sudo (sudo adb start-server)"
+#will pull gapps related packages off the primary connected phone using adb and put the files into the gapps folder inside the repo ($directory)
 
-rm -f vendor/evervolv/GAPPS/system/app/CarHomeGoogle.apk
-rm -f vendor/evervolv/GAPPS/system/app/CarHomeLauncher.apk
-rm -f vendor/evervolv/GAPPS/system/app/Facebook.apk
-rm -f vendor/evervolv/GAPPS/system/app/GenieWidget.apk
-rm -f vendor/evervolv/GAPPS/system/app/Gmail.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleBackupTransport.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleCalendarSyncAdapter.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleContactsSyncAdapter.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleFeedback.apk
-rm -f vendor/evervolv/GAPPS/system/app/GooglePartnerSetup.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleQuickSearchBox.apk
-rm -f vendor/evervolv/GAPPS/system/app/GoogleServicesFramework.apk
-rm -f vendor/evervolv/GAPPS/system/app/LatinImeTutorial.apk
-rm -f vendor/evervolv/GAPPS/system/app/Maps.apk
-rm -f vendor/evervolv/GAPPS/system/app/MarketUpdater.apk
-rm -f vendor/evervolv/GAPPS/system/app/MediaUploader.apk
-rm -f vendor/evervolv/GAPPS/system/app/Microbes.apk
-rm -f vendor/evervolv/GAPPS/system/app/NetworkLocation.apk
-rm -f vendor/evervolv/GAPPS/system/app/OneTimeInitializer.apk
-rm -f vendor/evervolv/GAPPS/system/app/SetupWizard.apk
-rm -f vendor/evervolv/GAPPS/system/app/Street.apk
-rm -f vendor/evervolv/GAPPS/system/app/Talk.apk
-rm -f vendor/evervolv/GAPPS/system/app/Twitter.apk
-rm -f vendor/evervolv/GAPPS/system/app/Vending.apk
-rm -f vendor/evervolv/GAPPS/system/app/VoiceSearch.apk
-rm -f vendor/evervolv/GAPPS/system/app/YouTube.apk
-rm -f vendor/evervolv/GAPPS/system/app/googlevoice.apk
-rm -f vendor/evervolv/GAPPS/system/app/kickback.apk
-rm -f vendor/evervolv/GAPPS/system/app/soundback.apk
-rm -f vendor/evervolv/GAPPS/system/app/talkback.apk
-rm -f vendor/evervolv/GAPPS/system/etc/permissions/com.google.android.maps.xml
-rm -f vendor/evervolv/GAPPS/system/etc/permissions/features.xml
-rm -f vendor/evervolv/GAPPS/system/framework/com.google.android.maps.jar
-rm -f vendor/evervolv/GAPPS/system/lib/libmicrobes_jni.so
-rm -f vendor/evervolv/GAPPS/system/lib/libspeech.so
-rm -f vendor/evervolv/GAPPS/system/lib/libvoicesearch.so
+directory="vendor/evervolv/GAPPS"
 
-mkdir -p vendor/evervolv/GAPPS/system/app
-adb pull /system/app/CarHomeGoogle.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/CarHomeLauncher.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Facebook.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GenieWidget.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Gmail.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleBackupTransport.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleCalendarSyncAdapter.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleContactsSyncAdapter.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleFeedback.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GooglePartnerSetup.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleQuickSearchBox.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/GoogleServicesFramework.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/LatinImeTutorial.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Maps.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/MarketUpdater.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/MediaUploader.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Microbes.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/NetworkLocation.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/OneTimeInitializer.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/SetupWizard.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Street.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Talk.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Twitter.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/Vending.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/VoiceSearch.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/YouTube.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/googlevoice.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/kickback.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/soundback.apk vendor/evervolv/GAPPS/system/app/
-adb pull /system/app/talkback.apk vendor/evervolv/GAPPS/system/app/
-mkdir -p vendor/evervolv/GAPPS/system/etc/permissions
-adb pull /system/etc/permissions/com.google.android.maps.xml vendor/evervolv/GAPPS/system/etc/permissions/
-adb pull /system/etc/permissions/features.xml vendor/evervolv/GAPPS/system/etc/permissions/
-mkdir -p vendor/evervolv/GAPPS/system/framework
-adb pull /system/framework/com.google.android.maps.jar vendor/evervolv/GAPPS/system/framework/
-mkdir -p vendor/evervolv/GAPPS/system/lib
-adb pull /system/lib/libmicrobes_jni.so vendor/evervolv/GAPPS/system/lib/
-adb pull /system/lib/libspeech.so vendor/evervolv/GAPPS/system/lib/
-adb pull /system/lib/libvoicesearch.so vendor/evervolv/GAPPS/system/lib/
+mkdir -p $directory/system/etc/permissions
+echo -n "com.google.android.maps.xml  "
+adb pull /system/etc/permissions/com.google.android.maps.xml $directory/system/etc/permissions/
+echo -n "features.xml  "
+adb pull /system/etc/permissions/features.xml $directory/system/etc/permissions/
+
+mkdir -p $directory/system/framework
+echo -n "com.google.android.maps.jar  "
+adb pull /system/framework/com.google.android.maps.jar $directory/system/framework/
+
+mkdir -p $directory/system/lib
+echo -n "libmicrobes_jni.so  "
+adb pull /system/lib/libmicrobes_jni.so $directory/system/lib/
+echo -n "libspeech.so  "
+adb pull /system/lib/libspeech.so $directory/system/lib/
+echo -n "libvoicesearch.so  "
+adb pull /system/lib/libvoicesearch.so $directory/system/lib/
+
+#make the folder if needed
+mkdir -p $directory/system/app
+
+#set up 2 arrays first with the apk name second with the package name (to be used as a 2x## array, so make sure the entries match)
+app0=( Vending.apk Maps.apk Gmail.apk talkback.apk soundback.apk GoogleBackupTransport.apk CarHomeGoogle.apk GoogleCalendarSyncAdapter.apk GoogleContactsSyncAdapter.apk YouTube.apk Twitter.apk googlevoice.apk VoiceSearch.apk GoogleServicesFramework.apk Talk.apk Facebook.apk GenieWidget.apk LatinImeTutorial.apk GoogleFeedback.apk MarketUpdater.apk Microbes.apk SetupWizard.apk OneTimeInitializer.apk GoogleQuickSearchBox.apk kickback.apk Street.apk GooglePartnerSetup.apk NetworkLocation.apk MediaUploader.apk CarHomeLauncher.apk )
+
+app1=( com.android.vending com.google.android.apps.maps com.google.android.gm com.google.android.marvin.talkback com.google.android.marvin.soundback com.google.android.backup com.google.android.carhome com.google.android.syncadapters.calendar com.google.android.syncadapters.contacts com.google.android.youtube com.twitter.android com.google.android.apps.googlevoice com.google.android.voicesearch com.google.android.gsf com.google.android.talk com.facebook.katana com.google.android.apps.genie.geniewidget com.google.android.latinimetutorial com.google.android.feedback com.android.vending.updater com.android.livewallpaper.microbesgl com.android.setupwizard com.google.android.onetimeinitializer com.google.android.googlequicksearchbox com.google.android.marvin.kickback com.google.android.street com.google.android.partnersetup com.google.android.location com.google.android.apps.uploader com.android.cardock )
+
+#get a list of what is in /data/app on the phone
+data=`adb shell ls /data/app | tr "\r\n" " "`
+
+#go threw the list and the array, see what we have updated, if we have one then grab it
+for (( i=0; i<${#app0[@]}; i++ ))
+do
+ name=${app1[$i]}
+ echo $data | grep -woq "${app1[$i]}[-0-9]*.apk"
+
+ if [ $? -eq 0 ]
+  then
+   result="adb pull /data/app/" 
+   result="$result"`echo $data | grep -wo "${app1[$i]}[-0-9]*.apk"`
+   result="$result $directory/system/app/${app0[$i]}"
+  else
+   result="adb pull /system/app/" 
+   result="$result${app0[$i]}"
+   result="$result  $directory/system/app/${app0[$i]}"
+  fi
+ echo -n "${app0[$i]}  "
+ `$result`
+
+done
