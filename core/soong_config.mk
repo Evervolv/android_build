@@ -147,6 +147,7 @@ $(call add_json_bool, ArtUseReadBarrier,                 $(call invert_bool,$(fi
 $(call add_json_str,  BtConfigIncludeDir,                $(BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR))
 $(call add_json_list, DeviceKernelHeaders,               $(TARGET_DEVICE_KERNEL_HEADERS) $(TARGET_BOARD_KERNEL_HEADERS) $(TARGET_PRODUCT_KERNEL_HEADERS))
 $(call add_json_str,  VendorApiLevel,                    $(BOARD_API_LEVEL))
+$(call add_json_str,  TargetSpecificHeaderPath,          $(TARGET_SPECIFIC_HEADER_PATH))
 ifeq ($(KEEP_VNDK),true)
 $(call add_json_str,  DeviceVndkVersion,                 $(BOARD_VNDK_VERSION))
 $(call add_json_str,  Platform_vndk_version,             $(PLATFORM_VNDK_VERSION))
