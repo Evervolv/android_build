@@ -11,6 +11,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
 - godir:   Go to the directory containing a file.
 - mka:     Builds using SCHED_BATCH on all processors
 - reposync: Parallel repo sync using ionice and SCHED_BATCH
+- mknightly: Sets NIGHTLY_BUILD true or false to change zip naming and rom version.
 
 Look at the source to view more functions. The complete list is:
 EOF
@@ -21,6 +22,18 @@ EOF
       A="$A $i"
     done
     echo $A
+}
+
+# set nighly.
+function mknightly()
+{
+    if [[ ( "$1" = "true" ) || ( "$1" = "false" ) ]]; then
+        export NIGHTLY_BUILD=$1
+        echo "Nightly build set to: " $NIGHTLY_BUILD
+    else
+        echo "mknightly: Argument provided was not a boolean."
+        echo "Please use 'true' or 'false'"
+    fi
 }
 
 # Get the value of a build variable as an absolute path.
