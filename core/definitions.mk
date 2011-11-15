@@ -875,11 +875,17 @@ define transform-cpp-to-o
 @echo -e ${CL_PFX}"target $(PRIVATE_ARM_MODE) C++:"${CL_RST}" $(PRIVATE_MODULE) <= $<"
 $(hide) $(PRIVATE_CXX) \
 	$(addprefix -I , $(PRIVATE_C_INCLUDES)) \
-	$(addprefix -isystem ,\
+	$(addprefix -I ,\
 	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
-	        $(filter-out $(PRIVATE_C_INCLUDES), \
+	        $(filter-out bionic/% $(PRIVATE_C_INCLUDES), \
 	            $(PRIVATE_TARGET_PROJECT_INCLUDES) \
 	            $(PRIVATE_TARGET_C_INCLUDES)))) \
+	$(addprefix -isystem ,\
+	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
+	        $(filter bionic/%, \
+	            $(filter-out $(PRIVATE_C_INCLUDES), \
+	                $(PRIVATE_TARGET_PROJECT_INCLUDES) \
+	                $(PRIVATE_TARGET_C_INCLUDES))))) \
 	-c \
 	$(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
 	    $(PRIVATE_TARGET_GLOBAL_CFLAGS) \
@@ -904,11 +910,17 @@ define transform-c-or-s-to-o-no-deps
 @mkdir -p $(dir $@)
 $(hide) $(PRIVATE_CC) \
 	$(addprefix -I , $(PRIVATE_C_INCLUDES)) \
-	$(addprefix -isystem ,\
+	$(addprefix -I ,\
 	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
-	        $(filter-out $(PRIVATE_C_INCLUDES), \
+	        $(filter-out bionic/% $(PRIVATE_C_INCLUDES), \
 	            $(PRIVATE_TARGET_PROJECT_INCLUDES) \
 	            $(PRIVATE_TARGET_C_INCLUDES)))) \
+	$(addprefix -isystem ,\
+	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
+	        $(filter bionic/%, \
+	            $(filter-out $(PRIVATE_C_INCLUDES), \
+	                $(PRIVATE_TARGET_PROJECT_INCLUDES) \
+	                $(PRIVATE_TARGET_C_INCLUDES))))) \
 	-c \
 	$(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
 	    $(PRIVATE_TARGET_GLOBAL_CFLAGS) \
@@ -965,11 +977,17 @@ define transform-host-cpp-to-o
 @echo -e ${CL_PFX}"host C++:"${CL_RST}" $(PRIVATE_MODULE) <= $<"
 $(hide) $(PRIVATE_CXX) \
 	$(addprefix -I , $(PRIVATE_C_INCLUDES)) \
-	$(addprefix -isystem ,\
+	$(addprefix -I ,\
 	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
-	        $(filter-out $(PRIVATE_C_INCLUDES), \
+	        $(filter-out bionic/% $(PRIVATE_C_INCLUDES), \
 	            $(HOST_PROJECT_INCLUDES) \
 	            $(HOST_C_INCLUDES)))) \
+	$(addprefix -isystem ,\
+	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
+	        $(filter bionic/%, \
+	            $(filter-out $(PRIVATE_C_INCLUDES), \
+	                $(HOST_PROJECT_INCLUDES) \
+	                $(HOST_C_INCLUDES))))) \
 	-c \
 	$(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
 	    $(HOST_GLOBAL_CFLAGS) \
@@ -992,11 +1010,17 @@ define transform-host-c-or-s-to-o-no-deps
 @mkdir -p $(dir $@)
 $(hide) $(PRIVATE_CC) \
 	$(addprefix -I , $(PRIVATE_C_INCLUDES)) \
-	$(addprefix -isystem ,\
+	$(addprefix -I ,\
 	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
-	        $(filter-out $(PRIVATE_C_INCLUDES), \
+	        $(filter-out bionic/% $(PRIVATE_C_INCLUDES), \
 	            $(HOST_PROJECT_INCLUDES) \
 	            $(HOST_C_INCLUDES)))) \
+	$(addprefix -isystem ,\
+	    $(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
+	        $(filter bionic/%, \
+	            $(filter-out $(PRIVATE_C_INCLUDES), \
+	                $(HOST_PROJECT_INCLUDES) \
+	                $(HOST_C_INCLUDES))))) \
 	-c \
 	$(if $(PRIVATE_NO_DEFAULT_COMPILER_FLAGS),, \
 	    $(HOST_GLOBAL_CFLAGS) \
