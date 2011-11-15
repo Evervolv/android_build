@@ -1506,7 +1506,7 @@ $(hide) if [ -e $(PRIVATE_CLASS_INTERMEDIATES_DIR)/stamp ] ; then \
         find $(PRIVATE_SOURCE_INTERMEDIATES_DIR) -name '*.java' $$newerFlag >> $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list; \
     fi
 $(hide) tr ' ' '\n' < $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list \
-    | sort -u > $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list-uniq
+    | LANG=C sort -u > $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list-uniq
 @echo "(Incremental) build source files:"
 @cat $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list-uniq
 $(hide) if [ -s $(PRIVATE_CLASS_INTERMEDIATES_DIR)/java-source-list-uniq ] ; then \
