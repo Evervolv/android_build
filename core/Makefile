@@ -2109,6 +2109,18 @@ tool_extension := $(wildcard $(tool_extensions)/releasetools.py)
 $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_TOOL_EXTENSIONS := $(tool_extensions)
 $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_TOOL_EXTENSION := $(tool_extension)
 
+ifeq ($(BOARD_USES_UBOOT_MULTIIMAGE),true)
+ZIP_SAVE_UBOOTIMG_ARGS := -A ARM -O Linux -T multi -C none -n Image
+BOARD_UBOOT_ENTRY := $(strip $(BOARD_UBOOT_ENTRY))
+ifdef BOARD_UBOOT_ENTRY
+ZIP_SAVE_UBOOTIMG_ARGS += -e $(BOARD_UBOOT_ENTRY)
+endif
+BOARD_UBOOT_LOAD := $(strip $(BOARD_UBOOT_LOAD))
+ifdef BOARD_UBOOT_LOAD
+ZIP_SAVE_UBOOTIMG_ARGS += -a $(BOARD_UBOOT_LOAD)
+endif
+endif
+
 ifeq ($(AB_OTA_UPDATER),true)
 # Build zlib fingerprint if using the AB Updater.
 updater_dep := $(TARGET_OUT_COMMON_GEN)/zlib_fingerprint
@@ -2251,7 +2263,11 @@ endif
 ifdef BOARD_FORCE_RAMDISK_ADDRESS
 	$(hide) echo "$(BOARD_FORCE_RAMDISK_ADDRESS)" > $(zip_root)/BOOT/ramdiskaddr
 endif
+ifdef ZIP_SAVE_UBOOTIMG_ARGS
+	$(hide) echo "$(ZIP_SAVE_UBOOTIMG_ARGS)" > $(zip_root)/BOOT/ubootargs
+endif
 endif # BOARD_USES_RECOVERY_AS_BOOT
+
 	$(hide) $(foreach t,$(INSTALLED_RADIOIMAGE_TARGET),\
 	            mkdir -p $(zip_root)/RADIO; \
 	            cp $(t) $(zip_root)/RADIO/$(notdir $(t));)
