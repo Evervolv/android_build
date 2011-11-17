@@ -627,7 +627,17 @@ def _BuildBootableImage(sourcedir, fs_config_file, info_dict=None,
   # use MKBOOTIMG from environ, or "mkbootimg" if empty or not set
   mkbootimg = os.getenv('MKBOOTIMG') or "mkbootimg"
 
-  cmd = [mkbootimg, "--kernel", os.path.join(sourcedir, "kernel")]
+  fn = os.path.join(sourcedir, "ubootargs")
+  if os.access(fn, os.F_OK):
+    mkimage = os.getenv('MKIMAGE') or "mkimage"
+    cmd = [mkimage]
+    for argument in open(fn).read().rstrip("\n").split(" "):
+      cmd.append(argument)
+      cmd.append("-d")
+      cmd.append(os.path.join(sourcedir, "kernel")+":"+ramdisk_img.name)
+      cmd.append(img.name)
+  else:
+    cmd = [mkbootimg, "--kernel", os.path.join(sourcedir, "kernel")]
 
   fn = os.path.join(sourcedir, "second")
   if os.access(fn, os.F_OK):
