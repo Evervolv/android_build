@@ -802,6 +802,7 @@ recovery_sepolicy := $(call intermediates-dir-for,ETC,sepolicy.recovery)/sepolic
 recovery_kernel := $(INSTALLED_KERNEL_TARGET) # same as a non-recovery system
 recovery_ramdisk := $(PRODUCT_OUT)/ramdisk-recovery.img
 recovery_build_prop := $(intermediate_system_build_prop)
+recovery_uncompressed_ramdisk := $(PRODUCT_OUT)/ramdisk-recovery.cpio
 recovery_resources_common := $(call project-path-for, recovery)/res
 
 # Set recovery_density to the density bucket of the device.
@@ -948,6 +949,10 @@ define sign-recoveryimage-target
   @echo -e ${CL_CYN}"Made recovery image: $@"${CL_RST}
 endef
 endif # BOARD_CUSTOM_BOOTIMG_MK
+
+$(recovery_uncompressed_ramdisk): $(MINIGZIP) $(recovery_ramdisk)
+	@echo -e ${CL_CYN}"----- Making uncompressed recovery ramdisk ------"${CL_RST}
+	$(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) > $@
 
 $(recovery_ramdisk): $(MKBOOTFS) $(MINIGZIP) \
 		$(INSTALLED_RAMDISK_TARGET) \
