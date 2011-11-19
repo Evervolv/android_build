@@ -2931,10 +2931,13 @@ EmptyImage = images.EmptyImage
 
 # map recovery.fstab's fs_types to mount/format "partition types"
 PARTITION_TYPES = {
+    "ext2": "EMMC",
+    "ext3": "EMMC",
     "ext4": "EMMC",
     "emmc": "EMMC",
     "f2fs": "EMMC",
-    "squashfs": "EMMC"
+    "squashfs": "EMMC",
+    "vfat": "EMMC",
 }
 
 def GetTypeAndDevice(mount_point, info, check_no_slot=True):
