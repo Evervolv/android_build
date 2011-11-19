@@ -1588,10 +1588,13 @@ DataImage = blockimgdiff.DataImage
 PARTITION_TYPES = {
     "yaffs2": "MTD",
     "mtd": "MTD",
+    "ext2": "EMMC",
+    "ext3": "EMMC",
     "ext4": "EMMC",
     "emmc": "EMMC",
     "f2fs": "EMMC",
-    "squashfs": "EMMC"
+    "squashfs": "EMMC",
+    "vfat": "EMMC",
 }
 
 def GetTypeAndDevice(mount_point, info):
