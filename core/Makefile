@@ -1,20 +1,5 @@
 # Put some miscellaneous rules here
 
-<<<<<<< HEAD
-=======
-# Build system colors
-
-ifneq ($(BUILD_WITH_COLORS),0)
-  CL_RED="\033[31m"
-  CL_GRN="\033[32m"
-  CL_YLW="\033[33m"
-  CL_BLU="\033[34m"
-  CL_MAG="\033[35m"
-  CL_CYN="\033[36m"
-  CL_RST="\033[0m"
-endif
-
->>>>>>> e2e3be0... build: use ROM_VERSION to name the zips
 # HACK: clear LOCAL_PATH from including last build target before calling
 # intermedites-dir-for
 LOCAL_PATH := $(BUILD_SYSTEM)
@@ -49,7 +34,6 @@ unique_product_copy_files_destinations :=
 $(foreach cf,$(unique_product_copy_files_pairs), \
     $(eval _src := $(call word-colon,1,$(cf))) \
     $(eval _dest := $(call word-colon,2,$(cf))) \
-    $(call check-product-copy-files,$(cf)) \
     $(if $(filter $(unique_product_copy_files_destinations),$(_dest)), \
         $(info PRODUCT_COPY_FILES $(cf) ignored.), \
         $(eval _fulldest := $(call append-path,$(PRODUCT_OUT),$(_dest))) \
@@ -954,6 +938,14 @@ endif
 
 .PHONY: recoveryimage
 recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET) $(RECOVERY_RESOURCE_ZIP)
+
+INSTALLED_RECOVERYZIP_TARGET := $(PRODUCT_OUT)/utilities/update.zip
+$(INSTALLED_RECOVERYZIP_TARGET): $(INSTALLED_RECOVERYIMAGE_TARGET) $(TARGET_OUT)/bin/updater
+	@echo ----- Making recovery zip -----
+	./build/tools/device/mkrecoveryzip.sh $(PRODUCT_OUT) $(HOST_OUT_JAVA_LIBRARIES)/signapk.jar
+
+.PHONY: recoveryzip
+recoveryzip: $(INSTALLED_RECOVERYZIP_TARGET)
 
 ifeq ($(BOARD_NAND_PAGE_SIZE),)
 BOARD_NAND_PAGE_SIZE := 2048
