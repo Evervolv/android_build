@@ -124,6 +124,14 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
 
   --payload_signer_args <args>
       Specify the arguments needed for payload signer.
+
+  --motd  <string>
+      Insert a MOTD
+
+  --motd-limit  <int>
+      Limit the MOTD to x characters per line (fixes a flashing problem)
+      Default 48 (chosen from the Evo)
+
 """
 
 import sys
@@ -174,6 +182,8 @@ OPTIONS.gen_verify = False
 OPTIONS.log_diff = None
 OPTIONS.payload_signer = None
 OPTIONS.payload_signer_args = []
+OPTIONS.motd = None
+OPTIONS.motdLim = 48
 
 def MostPopularKey(d, default):
   """Given a dict, return the key corresponding to the largest
@@ -635,6 +645,28 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
       oem_props, oem_dict, OPTIONS.info_dict))
 
   device_specific.FullOTA_InstallBegin()
+
+# MOTD during flash added for Evervolv by cocide
+  if (OPTIONS.motd != None):
+    eachRawMotd = OPTIONS.motd.split("\\n")
+    for eachMotd in eachRawMotd:
+      rawMotd = eachMotd.split()
+      sizedMotd = []
+      for word in rawMotd:
+        sizedMotd += [word[i:i+OPTIONS.motdLim] for i in range(0, len(word), OPTIONS.motdLim)]
+      sizedMotd.reverse()
+      if len(sizedMotd):
+        motdLine = [sizedMotd.pop()]
+      else:
+        motdLine = [""]
+      sizedMotd.reverse()
+      for word in sizedMotd:
+        if ( (motdLine[len(motdLine)-1].__len__() + word.__len__()) < 48):
+          motdLine[len(motdLine)-1] = motdLine[len(motdLine)-1] + " " + word
+        else:
+          motdLine.append(word)
+      for line in motdLine:
+        script.Print(line)
 
   system_progress = 0.75
 
@@ -1956,6 +1988,11 @@ def main(argv):
       OPTIONS.payload_signer = a
     elif o == "--payload_signer_args":
       OPTIONS.payload_signer_args = shlex.split(a)
+    elif o in ("--motd"):
+      OPTIONS.motd = a
+    elif o in ("--motd-limit"):
+      OPTIONS.motdLim = a
+>>>>>>> f89389b... Merge: Add MOTD option in updater-script.
     else:
       return False
     return True
@@ -1987,6 +2024,8 @@ def main(argv):
                                  "log_diff=",
                                  "payload_signer=",
                                  "payload_signer_args=",
+                                 "motd=",
+                                 "motd-limit=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:
