@@ -62,6 +62,7 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
 """
 
 import sys
+import os
 
 if sys.hexversion < 0x02040000:
   print >> sys.stderr, "Python 2.4 or newer is required."
@@ -315,6 +316,13 @@ def SignOutput(temp_zip_name, output_zip_name):
 
   common.SignFile(temp_zip_name, output_zip_name, OPTIONS.package_key, pw,
                   whole_file=True)
+
+  ########## Printing of md5sum ##########
+  print "############ md5sum ############\n"
+  os.system("md5sum " + output_zip_name + " > " + output_zip_name + ".md5sum")
+  os.system("cat " + output_zip_name + ".md5sum")
+  print "\n################################"
+  os.system("touch " + output_zip_name.replace(".zip", ".log"))
 
 
 def AppendAssertions(script, input_zip):
