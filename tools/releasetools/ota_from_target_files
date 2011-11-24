@@ -397,7 +397,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
   device_specific.FullOTA_Assertions()
   device_specific.FullOTA_InstallBegin()
 
-# MOTD during flash added for Evervolv by cocide
   if (OPTIONS.motd != None):
     eachRawMotd = OPTIONS.motd.split("\\n")
     for eachMotd in eachRawMotd:
@@ -422,17 +421,21 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.ShowProgress(0.5, 0)
 
   if OPTIONS.wipe_user_data:
+    script.Print("Wiping user data")
     script.FormatPartition("/data")
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
+  script.Print("Formatting system")
   script.FormatPartition("/system")
   script.Mount("/system")
   #script.UnpackPackageDir("recovery", "/system")
+  script.Print("Installing Evervolv")
   script.UnpackPackageDir("system", "/system")
 
   symlinks = CopySystemFiles(input_zip, output_zip)
+  script.Print("Creating symlinks")
   script.MakeSymlinks(symlinks)
 
   boot_img = common.GetBootableImage("boot.img", "boot.img",
@@ -442,6 +445,7 @@ def WriteFullOTAPackage(input_zip, output_zip):
   #MakeRecoveryPatch(output_zip, recovery_img, boot_img)
 
   Item.GetMetadata(input_zip)
+  script.Print("Setting permissions")
   Item.Get("system").SetPermissions(script)
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
