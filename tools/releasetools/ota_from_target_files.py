@@ -450,6 +450,12 @@ def SignOutput(temp_zip_name, output_zip_name):
   common.SignFile(temp_zip_name, output_zip_name, OPTIONS.package_key, pw,
                   whole_file=True)
 
+  ########## Printing of md5sum ##########
+  print "############ md5sum ############\n"
+  os.system("md5sum " + output_zip_name + " > " + output_zip_name + ".md5sum")
+  os.system("cat " + output_zip_name + ".md5sum")
+  print "\n################################"
+  os.system("touch " + output_zip_name.replace(".zip", ".log"))
 
 def AppendAssertions(script, info_dict, oem_dict=None):
   oem_props = info_dict.get("oem_fingerprint_properties")
