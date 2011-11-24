@@ -687,10 +687,12 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     system_diff = common.BlockDifference("system", system_tgt, src=None)
     system_diff.WriteScript(script, output_zip)
   else:
+    script.Print("Formatting system")
     script.FormatPartition("/system")
     script.Mount("/system", recovery_mount_options)
     if not has_recovery_patch:
       script.UnpackPackageDir("recovery", "/system")
+    script.Print("Installing Evervolv")
     script.UnpackPackageDir("system", "/system")
 
     symlinks = CopyPartitionFiles(system_items, input_zip, output_zip)
@@ -708,6 +710,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
                              recovery_img, boot_img)
 
     system_items.GetMetadata(input_zip)
+    script.Print("Setting permissions")
     system_items.Get("system").SetPermissions(script)
 
   if HasVendorPartition(input_zip):
