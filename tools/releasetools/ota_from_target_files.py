@@ -180,6 +180,14 @@ A/B OTA specific options
 
   --override_device <device>
       Override device-specific asserts. Can be a comma-separated list.
+
+  --motd  <string>
+      Insert a MOTD
+
+  --motd-limit  <int>
+      Limit the MOTD to x characters per line
+      Default 48
+
 """
 
 from __future__ import print_function
@@ -238,7 +246,8 @@ OPTIONS.retrofit_dynamic_partitions = False
 OPTIONS.skip_compatibility_check = False
 OPTIONS.output_metadata_path = None
 OPTIONS.override_device = 'auto'
-
+OPTIONS.motd = None
+OPTIONS.motdLim = 48
 
 METADATA_NAME = 'META-INF/com/android/metadata'
 POSTINSTALL_CONFIG = 'META/postinstall_config.txt'
@@ -950,6 +959,27 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   # Dump fingerprints
   script.Print("Target: {}".format(target_info.fingerprint))
+
+  if (OPTIONS.motd != None):
+    eachRawMotd = OPTIONS.motd.split("\\n")
+    for eachMotd in eachRawMotd:
+      rawMotd = eachMotd.split()
+      sizedMotd = []
+      for word in rawMotd:
+        sizedMotd += [word[i:i+OPTIONS.motdLim] for i in range(0, len(word), OPTIONS.motdLim)]
+      sizedMotd.reverse()
+      if len(sizedMotd):
+        motdLine = [sizedMotd.pop()]
+      else:
+        motdLine = [""]
+      sizedMotd.reverse()
+      for word in sizedMotd:
+        if ( (motdLine[len(motdLine)-1].__len__() + word.__len__()) < 48):
+          motdLine[len(motdLine)-1] = motdLine[len(motdLine)-1] + " " + word
+        else:
+          motdLine.append(word)
+      for line in motdLine:
+        script.Print(line)
 
   script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
   device_specific.FullOTA_InstallBegin()
@@ -2238,6 +2268,10 @@ def main(argv):
       OPTIONS.output_metadata_path = a
     elif o == "--override_device":
       OPTIONS.override_device = a
+    elif o == "--motd":
+      OPTIONS.motd = a
+    elif o == "--motd-limit":
+      OPTIONS.motdLim = a
     else:
       return False
     return True
@@ -2273,6 +2307,8 @@ def main(argv):
                                  "skip_compatibility_check",
                                  "output_metadata_path=",
                                  "override_device=",
+                                 "motd=",
+                                 "motd-limit=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:

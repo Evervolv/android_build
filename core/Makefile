@@ -4289,6 +4289,7 @@ PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MK
    $(OTA_FROM_TARGET_SCRIPT) -v \
    --block \
    --extracted_input_target_files $(patsubst %.zip,%,$(BUILT_TARGET_FILES_PACKAGE)) \
+   --motd $(PRODUCT_MOTD) \
    -p $(HOST_OUT) \
    $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
    $(2) \
