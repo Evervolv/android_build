@@ -637,6 +637,21 @@ function _lunch()
 }
 complete -F _lunch lunch
 
+function find_deps() {
+
+    if [ -z "$TARGET_PRODUCT" ]
+    then
+        echo "TARGET_PRODUCT not set..."
+        lunch
+    fi
+
+    build/tools/roomservice.py $TARGET_PRODUCT true
+    if [ $? -ne 0 ]
+    then
+        echo "find_deps failed."
+    fi
+}
+
 # Configures the build to build unbundled apps.
 # Run tapas with one or more app names (from LOCAL_PACKAGE_NAME)
 function tapas()
