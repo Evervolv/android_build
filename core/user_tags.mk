@@ -72,6 +72,7 @@ GRANDFATHERED_USER_MODULES += \
 	com.android.phone.common \
 	com.android.vcard \
 	commons-compress-1.0 \
+	copybit.msm7k \
 	copybit.qsd8k \
 	copybit.s5pc110 \
 	coverage \
@@ -133,6 +134,7 @@ GRANDFATHERED_USER_MODULES += \
 	genext2fs \
 	gps.mahimahi \
 	gralloc.default \
+	gralloc.msm7k \
 	gralloc.qsd8k \
 	groovy-all-1.7.0 \
 	grxmlcompile \
@@ -379,6 +381,7 @@ GRANDFATHERED_USER_MODULES += \
 	libxslt \
 	libzipfile \
 	lights.kraken \
+	lights.msm7k \
 	lights.qsd8k \
 	line_endings \
 	linker \
@@ -501,5 +504,6 @@ GRANDFATHERED_USER_MODULES += \
 	vold \
 	wdsclient \
 	wpa_supplicant \
+	wpa_supplicant.conf \
 	yuv420sp2rgb \
 	zipalign
