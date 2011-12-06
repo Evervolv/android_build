@@ -532,6 +532,7 @@ ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
   BOOTIMAGE_EXTRA_DEPS    := $(INSTALLED_DTIMAGE_TARGET)
 endif
 
+BOARD_FORCE_RAMDISK_ADDRESS := $(strip $(BOARD_FORCE_RAMDISK_ADDRESS))
 ifneq ($(BOARD_FORCE_RAMDISK_ADDRESS),)
   INTERNAL_BOOTIMAGE_ARGS += --ramdiskaddr $(BOARD_FORCE_RAMDISK_ADDRESS)
 endif
@@ -1823,6 +1824,9 @@ ifdef ZIP_SAVE_UBOOTIMG_ARGS
 endif
 ifdef BOARD_RAMDISK_OFFSET
 	$(hide) echo "$(BOARD_RAMDISK_OFFSET)" > $(zip_root)/BOOT/ramdisk_offset
+endif
+ifdef BOARD_FORCE_RAMDISK_ADDRESS
+	$(hide) echo "$(BOARD_FORCE_RAMDISK_ADDRESS)" > $(zip_root)/BOOT/ramdiskaddr
 endif
 ifdef BOARD_KERNEL_TAGS_ADDR
 	$(hide) echo "$(BOARD_KERNEL_TAGS_ADDR)" > $(zip_root)/BOOT/tagsaddr
