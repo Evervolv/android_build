@@ -423,6 +423,11 @@ def _BuildBootableImage(sourcedir, fs_config_file, info_dict=None,
   if os.access(fn, os.F_OK):
     cmd.append("--base")
     cmd.append(open(fn).read().rstrip("\n"))
+    
+  fn = os.path.join(sourcedir, "ramdiskaddr")
+  if os.access(fn, os.F_OK):
+    cmd.append("--ramdiskaddr")
+    cmd.append(open(fn).read().rstrip("\n"))
 
   fn = os.path.join(sourcedir, "tagsaddr")
   if os.access(fn, os.F_OK):
