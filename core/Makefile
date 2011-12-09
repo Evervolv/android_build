@@ -1205,12 +1205,19 @@ else
     OTA_FROM_TARGET_SCRIPT := $(TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT)
 endif
 
+ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
+    $(INTERNAL_OTA_PACKAGE_TARGET): override_device := auto
+else
+    $(INTERNAL_OTA_PACKAGE_TARGET): override_device := $(TARGET_OTA_ASSERT_DEVICE)
+endif
+
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(OTATOOLS)
 	@echo "Package OTA: $@"
 	$(OTA_FROM_TARGET_SCRIPT) -v \
 	   -p $(HOST_OUT) \
            -k $(KEY_CERT_PAIR) \
            --motd $(PRODUCT_MOTD) \
+	   --override_device=$(override_device) \
            $(BUILT_TARGET_FILES_PACKAGE) $@
 ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
 	@echo "Running releasetool"
