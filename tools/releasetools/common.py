@@ -1736,6 +1736,11 @@ def _BuildBootableImage(image_name, sourcedir, fs_config_file,
     cmd.append("--tags_offset")
     cmd.append(open(fn).read().rstrip("\n"))
 
+  fn = os.path.join(sourcedir, "ramdiskaddr")
+  if os.access(fn, os.F_OK):
+    cmd.append("--ramdiskaddr")
+    cmd.append(open(fn).read().rstrip("\n"))
+
   fn = os.path.join(sourcedir, "ramdisk_offset")
   if os.access(fn, os.F_OK):
     cmd.append("--ramdisk_offset")
