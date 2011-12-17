@@ -17,14 +17,6 @@ cts_tools_src_dir := cts/tools
 
 cts_name := android-cts
 
-CTS_EXECUTABLE := startcts
-ifeq ($(HOST_OS),windows)
-    CTS_EXECUTABLE_PATH := $(cts_tools_src_dir)/host/etc/cts.bat
-else
-    CTS_EXECUTABLE_PATH := $(cts_tools_src_dir)/utils/$(CTS_EXECUTABLE)
-endif
-CTS_HOST_JAR := $(HOST_OUT_JAVA_LIBRARIES)/cts.jar
-
 DDMLIB_JAR := $(HOST_OUT_JAVA_LIBRARIES)/ddmlib-prebuilt.jar
 junit_host_jar := $(HOST_OUT_JAVA_LIBRARIES)/junit.jar
 HOSTTESTLIB_JAR := $(HOST_OUT_JAVA_LIBRARIES)/hosttestlib.jar
@@ -50,7 +42,7 @@ DEFAULT_TEST_PLAN := $(cts_dir)/$(cts_name)/resource/plans
 $(cts_dir)/all_cts_files_stamp: PRIVATE_JUNIT_HOST_JAR := $(junit_host_jar)
 
 -include cts/CtsHostLibraryList.mk
-$(cts_dir)/all_cts_files_stamp: $(CTS_CASE_LIST) $(junit_host_jar) $(HOSTTESTLIB_JAR) $(CTS_HOST_LIBRARY_JARS) $(TF_JAR) $(CTS_TF_JAR) $(CTS_TF_EXEC_PATH) $(CTS_TF_README_PATH) $(ACP)
+$(cts_dir)/all_cts_files_stamp: $(CTS_CASE_LIST) $(CTS_TEST_CASES) $(junit_host_jar) $(HOSTTESTLIB_JAR) $(CTS_HOST_LIBRARY_JARS) $(TF_JAR) $(CTS_TF_JAR) $(CTS_TF_EXEC_PATH) $(CTS_TF_README_PATH) $(ACP)
 # Make necessary directory for CTS
 	$(hide) rm -rf $(PRIVATE_CTS_DIR)
 	$(hide) mkdir -p $(TMP_DIR)
@@ -59,13 +51,10 @@ $(cts_dir)/all_cts_files_stamp: $(CTS_CASE_LIST) $(junit_host_jar) $(HOSTTESTLIB
 	$(hide) mkdir -p $(PRIVATE_DIR)/repository/testcases
 	$(hide) mkdir -p $(PRIVATE_DIR)/repository/plans
 # Copy executable and JARs to CTS directory
-	$(hide) $(ACP) -fp $(CTS_HOST_JAR) $(CTS_EXECUTABLE_PATH) $(DDMLIB_JAR) $(PRIVATE_JUNIT_HOST_JAR) $(HOSTTESTLIB_JAR) $(CTS_HOST_LIBRARY_JARS) $(TF_JAR) $(CTS_TF_JAR) $(CTS_TF_EXEC_PATH) $(CTS_TF_README_PATH) $(PRIVATE_DIR)/tools
+	$(hide) $(ACP) -fp $(DDMLIB_JAR) $(PRIVATE_JUNIT_HOST_JAR) $(HOSTTESTLIB_JAR) $(CTS_HOST_LIBRARY_JARS) $(TF_JAR) $(CTS_TF_JAR) $(CTS_TF_EXEC_PATH) $(CTS_TF_README_PATH) $(PRIVATE_DIR)/tools
 # Change mode of the executables
-	$(hide) chmod ug+rwX $(PRIVATE_DIR)/tools/$(notdir $(CTS_EXECUTABLE_PATH))
-	$(foreach apk,$(CTS_CASE_LIST), \
-			$(call copy-testcase-apk,$(apk)))
-# Copy CTS host config to CTS directory
-	$(hide) $(ACP) -fp $(cts_tools_src_dir)/utils/host_config.xml $(PRIVATE_DIR)/repository/
+	$(foreach apk,$(CTS_CASE_LIST),$(call copy-testcase-apk,$(apk)))
+	$(foreach testcase,$(CTS_TEST_CASES),$(call copy-testcase,$(testcase)))
 	$(hide) touch $@
 
 # Generate the test descriptions for the core-tests
@@ -176,9 +165,12 @@ APP_SECURITY_LIB := $(cts_dir)/$(cts_name)/repository/testcases/CtsAppSecurityTe
 $(APP_SECURITY_LIB): $(HOST_OUT_JAVA_LIBRARIES)/CtsAppSecurityTests.jar $(cts_dir)/all_cts_files_stamp $(ACP)
 	$(ACP) -fv $(HOST_OUT_JAVA_LIBRARIES)/CtsAppSecurityTests.jar $(APP_SECURITY_LIB)
 
+
 # Generate the default test plan for User.
 # Usage: buildCts.py <testRoot> <ctsOutputDir> <tempDir> <androidRootDir> <docletPath>
-$(DEFAULT_TEST_PLAN): $(cts_dir)/all_cts_files_stamp $(cts_dir)/all_cts_core_files_stamp $(cts_tools_src_dir)/utils/buildCts.py $(CORE_VM_TEST_TF_DESC) $(CORE_VM_TEST_DESC) $(APP_SECURITY_LIB) $(HOST_OUT_JAVA_LIBRARIES)/descGen.jar
+
+$(DEFAULT_TEST_PLAN): $(cts_dir)/all_cts_files_stamp $(cts_dir)/all_cts_core_files_stamp $(cts_tools_src_dir)/utils/buildCts.py $(CORE_VM_TEST_TF_DESC) $(CORE_VM_TEST_DESC) $(APP_SECURITY_LIB) $(HOST_OUT_JAVA_LIBRARIES)/descGen.jar $(CTS_TEST_XMLS) | $(ACP)
+	$(hide) $(ACP) -fp $(CTS_TEST_XMLS) $(PRIVATE_DIR)/repository/testcases
 	$(hide) $(cts_tools_src_dir)/utils/buildCts.py cts/tests/tests/ $(PRIVATE_DIR) $(TMP_DIR) \
 		$(TOP) $(HOST_OUT_JAVA_LIBRARIES)/descGen.jar
 
@@ -203,5 +195,11 @@ define copy-testcase-apk
 
 $(hide) $(ACP) -fp $(call intermediates-dir-for,APPS,$(1))/package.apk \
 	$(PRIVATE_DIR)/repository/testcases/$(1).apk
+
+endef
+
+define copy-testcase
+
+$(hide) $(ACP) -fp $(1) $(PRIVATE_DIR)/repository/testcases/$(notdir $1)
 
 endef
