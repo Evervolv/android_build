@@ -1102,13 +1102,13 @@ function evremote() {
         echo "Unable to set up the git remote, are you in the root of the repo?"
         return 0
     fi
-    EVUSER=`git config --get ev-absurd.absurd.evervolv.com.username`
+    EVUSER=`git config --get evreview.review.evervolv.com.username`
     if [ -z "$EVUSER" ]
     then
-        echo "No username found. Run: git config --global ev-absurd.absurd.evervolv.com.username <username>"
+        echo "No username found. Run: git config --global evreview.review.evervolv.com.username <username>"
         return 0
     else
-        git remote add evremote ssh://$EVUSER@absurd.evervolv.com:8083/$GERRIT_REMOTE
+        git remote add evremote ssh://$EVUSER@review.evervolv.com:8082/$GERRIT_REMOTE
     fi
     echo You can now push to "evremote".
 }
@@ -1118,7 +1118,7 @@ function evgerrit() {
         $FUNCNAME help
         return 1
     fi
-    local user=`git config --get ev-absurd.absurd.evervolv.com.username`
+    local user=`git config --get evreview.review.evervolv.com.username`
     local review=`git config --get remote.github.review`
     local project=`git config --get remote.github.projectname`
     local command=$1
@@ -1243,7 +1243,7 @@ EOF
                     ;;
             esac
             shift
-            git push $@ ssh://$user@$review:8083/$project \
+            git push $@ ssh://$user@$review:8082/$project \
                 $local_branch:refs/for/$remote_branch || return 1
             ;;
         changes|for)
