@@ -24,8 +24,7 @@ $(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackage14.mk)
 # Additional settings used in all AOSP builds
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.config.ringtone=Ring_Synth_04.ogg \
-    ro.config.notification_sound=pixiedust.ogg \
-    ro.com.android.dataroaming=true \
+    ro.config.notification_sound=pixiedust.ogg
 
 # More AOSP packages
 PRODUCT_PACKAGES += \
