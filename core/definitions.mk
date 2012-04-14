@@ -1544,7 +1544,7 @@ endef
 #      only core.jar and framework.jar need a heap this big.
 # Avoid the memory arguments on Windows, dx fails to load for some reason with them.
 define transform-classes.jar-to-dex
-@echo "target Dex: $(PRIVATE_MODULE)"
+@echo -e ${CL_PFX}"target Dex:"${CL_RST}" $(PRIVATE_MODULE)"
 @mkdir -p $(dir $@)
 $(hide) $(DX) \
     $(if $(findstring windows,$(HOST_OS)),,-JXms16M -JXmx2048M) \
