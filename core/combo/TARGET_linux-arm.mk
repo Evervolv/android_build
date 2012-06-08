@@ -43,8 +43,14 @@ include $(TARGET_ARCH_SPECIFIC_MAKEFILE)
 
 # You can set TARGET_TOOLS_PREFIX to get gcc from somewhere else
 ifeq ($(strip $(TARGET_TOOLS_PREFIX)),)
+ifeq (,$(LINARO_BUILD))
 TARGET_TOOLS_PREFIX := \
 	prebuilt/$(HOST_PREBUILT_TAG)/toolchain/arm-linux-androideabi-4.4.x/bin/arm-linux-androideabi-
+else
+$(info For now LINARO_BUILD requires an external toolchain, download here:)
+$(info http://snapshots.linaro.org/android/~linaro-android/toolchain-4.7-bzr/lastSuccessful/)
+$(error NO TARGET_TOOLS_PREFIX)
+endif
 endif
 
 # Only define these if there's actually a gcc in there.
@@ -66,20 +72,43 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
+ifeq (,$(LINARO_BUILD))
 TARGET_arm_CFLAGS :=    -O2 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \
                         -funswitch-loops
+else
+TARGET_arm_CFLAGS := \
+                        -fomit-frame-pointer \
+                        -fstrict-aliasing    \
+                        -funswitch-loops
+ifeq (,$(LINARO_OPT3))
+TARGET_arm_CFLAGS +=  -O2
+else
+TARGET_arm_CFLAGS +=  -O3
+endif
+endif
 
 # Modules can choose to compile some source as thumb. As
 # non-thumb enabled targets are supported, this is treated
 # as a 'hint'. If thumb is not enabled, these files are just
 # compiled as ARM.
 ifeq ($(ARCH_ARM_HAVE_THUMB_SUPPORT),true)
+ifeq (,$(LINARO_BUILD))
 TARGET_thumb_CFLAGS :=  -mthumb \
                         -Os \
                         -fomit-frame-pointer \
                         -fno-strict-aliasing
+else
+TARGET_thumb_CFLAGS :=  -mthumb \
+                        -fomit-frame-pointer \
+                        -fstrict-aliasing -Werror=strict-aliasing
+ifeq (,$(LINARO_OPT3))
+TARGET_thumb_CFLAGS +=  -Os
+else
+TARGET_thumb_CFLAGS +=  -O3
+endif
+endif
 else
 TARGET_thumb_CFLAGS := $(TARGET_arm_CFLAGS)
 endif
@@ -147,6 +176,12 @@ TARGET_GLOBAL_CFLAGS +=	-mno-thumb-interwork
 endif
 
 TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
+
+ifneq (,$(LINARO_BUILD))
+ifneq (,$(LINARO_CPP11))
+TARGET_GLOBAL_CPPFLAGS += $(call cc-option,-std=gnu++11)
+endif
+endif
 
 # More flags/options can be added here
 TARGET_RELEASE_CFLAGS += \
