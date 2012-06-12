@@ -47,9 +47,8 @@ ifeq (,$(LINARO_BUILD))
 TARGET_TOOLS_PREFIX := \
 	prebuilt/$(HOST_PREBUILT_TAG)/toolchain/arm-linux-androideabi-4.4.x/bin/arm-linux-androideabi-
 else
-$(info For now LINARO_BUILD requires an external toolchain, download here:)
-$(info http://snapshots.linaro.org/android/~linaro-android/toolchain-4.7-bzr/lastSuccessful/)
-$(error NO TARGET_TOOLS_PREFIX)
+TARGET_TOOLS_PREFIX := \
+	prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/linaro-4.7/bin/arm-linux-androideabi-
 endif
 endif
 
