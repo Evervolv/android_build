@@ -8,8 +8,10 @@ TARGET_KERNEL_SOURCE ?= $(TARGET_AUTO_KDIR)
 KERNEL_SRC := $(TARGET_KERNEL_SOURCE)
 # kernel configuration - mandatory
 KERNEL_DEFCONFIG := $(TARGET_KERNEL_CONFIG)
-# Allow custom eabi
-LINARO_EABI_PREFIX ?= $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/linaro-4.7/bin/arm-eabi-
+# Linaro eabi toolchain
+LINARO_EABI_PREFIX := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/linaro-4.7/bin/arm-eabi-
+# Default google eabi toolchain
+GOOGLE_EABI_PREFIX := $(ANDROID_BUILD_TOP)/prebuilt/$(HOST_PREBUILT_TAG)/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
 
 ## Internal variables
 KERNEL_OUT := $(ANDROID_BUILD_TOP)/$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
@@ -104,10 +106,12 @@ ifeq ($(TARGET_ARCH),arm)
       # Check that the executable is here.
       ccache := $(strip $(wildcard $(ccache)))
     endif
-    ifneq (,$(filter true 1,$(LINARO_KERNEL)))
-        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(LINARO_EABI_PREFIX)"
+    ifeq (,$(LINARO_BUILD))
+        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(GOOGLE_EABI_PREFIX)"
+    else ifneq (,$(filter false 0,$(LINARO_KERNEL)))
+        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(GOOGLE_EABI_PREFIX)"
     else
-        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
+        ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(LINARO_EABI_PREFIX)"
     endif
     ccache = 
 endif
