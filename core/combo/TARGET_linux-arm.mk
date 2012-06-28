@@ -71,43 +71,20 @@ endif
 
 TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-ifeq (,$(LINARO_BUILD))
 TARGET_arm_CFLAGS :=    -O2 \
                         -fomit-frame-pointer \
                         -fstrict-aliasing    \
                         -funswitch-loops
-else
-TARGET_arm_CFLAGS := \
-                        -fomit-frame-pointer \
-                        -fstrict-aliasing    \
-                        -funswitch-loops
-ifeq (,$(LINARO_OPT3))
-TARGET_arm_CFLAGS +=  -O2
-else
-TARGET_arm_CFLAGS +=  -O3
-endif
-endif
 
 # Modules can choose to compile some source as thumb. As
 # non-thumb enabled targets are supported, this is treated
 # as a 'hint'. If thumb is not enabled, these files are just
 # compiled as ARM.
 ifeq ($(ARCH_ARM_HAVE_THUMB_SUPPORT),true)
-ifeq (,$(LINARO_BUILD))
 TARGET_thumb_CFLAGS :=  -mthumb \
                         -Os \
                         -fomit-frame-pointer \
                         -fno-strict-aliasing
-else
-TARGET_thumb_CFLAGS :=  -mthumb \
-                        -fomit-frame-pointer \
-                        -fstrict-aliasing -Werror=strict-aliasing
-ifeq (,$(LINARO_OPT3))
-TARGET_thumb_CFLAGS +=  -Os
-else
-TARGET_thumb_CFLAGS +=  -O3
-endif
-endif
 else
 TARGET_thumb_CFLAGS := $(TARGET_arm_CFLAGS)
 endif
@@ -175,12 +152,6 @@ TARGET_GLOBAL_CFLAGS +=	-mno-thumb-interwork
 endif
 
 TARGET_GLOBAL_CPPFLAGS += -fvisibility-inlines-hidden
-
-ifneq (,$(LINARO_BUILD))
-ifneq (,$(LINARO_CPP11))
-TARGET_GLOBAL_CPPFLAGS += $(call cc-option,-std=gnu++11)
-endif
-endif
 
 # More flags/options can be added here
 TARGET_RELEASE_CFLAGS += \
