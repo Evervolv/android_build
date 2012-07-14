@@ -59,7 +59,7 @@ TARGET_GLOBAL_CPPFLAGS += \
 			-fno-use-cxa-atexit \
 			-fvisibility-inlines-hidden
 
-TARGET_RELEASE_CFLAGS := \
+TARGET_RELEASE_CFLAGS += \
 			-DSK_RELEASE -DNDEBUG \
 			-O2 -g \
 			-Wstrict-aliasing=2 \
