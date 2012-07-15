@@ -680,7 +680,9 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
         script.Print(line)
 
   if OPTIONS.backuptool:
+    script.Mount("/system")
     script.RunBackup("backup")
+    script.Unmount("/system")
 
   system_progress = 0.75
 
@@ -761,7 +763,11 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   if OPTIONS.backuptool:
     script.ShowProgress(0.02, 10)
+    if block_based:
+      script.Mount("/system")
     script.RunBackup("restore")
+    if block_based:
+      script.Unmount("/system")
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
