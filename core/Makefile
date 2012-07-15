@@ -3572,6 +3572,11 @@ OTATOOLS += \
   $(VBOOT_SIGNER)
 endif
 
+ifeq (true,$(BOARD_USES_UBOOT_MULTIIMAGE))
+OTATOOLS += \
+  $(MKIMAGE)
+endif
+
 # Shared libraries.
 OTATOOLS += \
   $(HOST_LIBRARY_PATH)/libc++$(HOST_SHLIB_SUFFIX) \
