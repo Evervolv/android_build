@@ -1304,6 +1304,36 @@ $(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(
 .PHONY: updatepackage
 updatepackage: $(INTERNAL_UPDATE_PACKAGE_TARGET)
 
+# ------------------------------------------
+# Tarball of system/boot images for fastboot
+define build-fastboot_tarball-target
+    $(call pretty,"Target fastboot tarball: $(tarball_name)")
+    rm -f $(INTERNAL_FASTBOOT_TARBALL_TARGET)
+    tar --create --xz \
+        --file=$(INTERNAL_FASTBOOT_TARBALL_TARGET) \
+        --directory=$(PRODUCT_OUT) \
+        system.img \
+        boot.img
+    $(call pretty,"Install fastboot tarball: $(INTERNAL_FASTBOOT_TARBALL_TARGET)")
+endef
+
+ifeq ($(NIGHTLY_BUILD),true)
+tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)-$(shell date +%Y%m%d)
+else
+tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
+endif
+
+INTERNAL_FASTBOOT_TARBALL_TARGET := $(PRODUCT_OUT)/$(tarball_name).tar.xz
+
+$(INTERNAL_FASTBOOT_TARBALL_TARGET): \
+		$(INSTALLED_BOOTIMAGE_TARGET) \
+		$(INSTALLED_USERDATAIMAGE_TARGET) \
+		$(INSTALLED_SYSTEMIMAGE)
+	$(build-fastboot_tarball-target)
+
+.PHONY: fastboot_tarball
+fastboot_tarball: $(INTERNAL_FASTBOOT_TARBALL_TARGET)
+
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
 endif    # TARGET_DEVICE != generic*
