@@ -70,7 +70,7 @@ ADDITIONAL_DEFAULT_PROPERTIES := $(call uniq-pairs-by-first-component, \
     $(ADDITIONAL_DEFAULT_PROPERTIES),=)
 
 $(INSTALLED_DEFAULT_PROP_TARGET):
-	@echo Target buildinfo: $@
+	@echo "Target buildinfo: $@"
 	@mkdir -p $(dir $@)
 	$(hide) echo "#" > $@; \
 	        echo "# ADDITIONAL_DEFAULT_PROPERTIES" >> $@; \
@@ -161,7 +161,7 @@ endef
 
 BUILDINFO_SH := build/tools/buildinfo.sh
 $(INSTALLED_BUILD_PROP_TARGET): $(BUILDINFO_SH) $(INTERNAL_BUILD_ID_MAKEFILE) $(BUILD_SYSTEM)/version_defaults.mk $(wildcard $(TARGET_DEVICE_DIR)/system.prop)
-	@echo Target buildinfo: $@
+	@echo "Target buildinfo: $@"
 	@mkdir -p $(dir $@)
 	$(hide) TARGET_BUILD_TYPE="$(TARGET_BUILD_VARIANT)" \
 			TARGET_DEVICE="$(TARGET_DEVICE)" \
@@ -220,7 +220,7 @@ sdk_build_prop_remove := \
 sdk_build_prop_remove += ro.build.product=
 INSTALLED_SDK_BUILD_PROP_TARGET := $(PRODUCT_OUT)/sdk/sdk-build.prop
 $(INSTALLED_SDK_BUILD_PROP_TARGET): $(INSTALLED_BUILD_PROP_TARGET)
-	@echo SDK buildinfo: $@
+	@echo "SDK buildinfo: $@"
 	@mkdir -p $(dir $@)
 	$(hide) grep -v "$(subst $(space),\|,$(strip \
 				$(sdk_build_prop_remove)))" $< > $@.tmp
@@ -235,7 +235,7 @@ PACKAGES_TO_STAT := \
     $(sort $(filter $(TARGET_OUT)/% $(TARGET_OUT_DATA)/%, \
 	$(filter %.jar %.apk, $(ALL_DEFAULT_INSTALLED_MODULES))))
 $(PACKAGE_STATS_FILE): $(PACKAGES_TO_STAT)
-	@echo Package stats: $@
+	@echo "Package stats: $@"
 	@mkdir -p $(dir $@)
 	$(hide) rm -f $@
 	$(hide) build/tools/dump-package-stats $^ > $@
@@ -256,7 +256,7 @@ APKCERTS_FILE := $(intermediates)/$(name).txt
 # We don't need to really build all the modules.
 # TODO: rebuild APKCERTS_FILE if any app change its cert.
 $(APKCERTS_FILE):
-	@echo APK certs list: $@
+	@echo "APK certs list: $@"
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(hide) $(foreach p,$(PACKAGES),\
@@ -413,6 +413,7 @@ INTERNAL_BOOTIMAGE_ARGS += --genext2fs $(MKEXT2IMG)
 $(INSTALLED_BOOTIMAGE_TARGET): $(MKEXT2IMG) $(INTERNAL_BOOTIMAGE_FILES)
 	$(call pretty,"Target boot image: $@")
 	$(hide) $(MKEXT2BOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) --output $@
+	@echo -e ${CL_INS}"Made boot image: $@"${CL_RST}
 
 else ifndef BOARD_CUSTOM_BOOTIMG_MK # TARGET_BOOTIMAGE_USE_EXT2 != true
 
@@ -420,6 +421,7 @@ $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES)
 	$(call pretty,"Target boot image: $@")
 	$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) --output $@
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_BOOTIMAGE_PARTITION_SIZE),raw)
+	@echo -e ${CL_INS}"Made boot image: $@"${CL_RST}
 endif # ifndef BOARD_CUSTOM_BOOTIMG_MK
 
 else	# TARGET_NO_KERNEL
@@ -522,7 +524,7 @@ endif
 $(kernel_notice_file): \
 	    prebuilts/qemu-kernel/arm/LINUX_KERNEL_COPYING \
 	    | $(ACP)
-	@echo Copying: $@
+	@echo "Copying: $@"
 	$(hide) mkdir -p $(dir $@)
 	$(hide) $(ACP) $< $@
 
@@ -684,17 +686,17 @@ $(TARGET_RECOVERY_ROOT_TIMESTAMP): $(INTERNAL_RECOVERY_FILES) \
 		$(recovery_build_prop) $(recovery_resource_deps) \
 		$(recovery_fstab) \
 		$(RECOVERY_INSTALL_OTA_KEYS)
-	@echo ----- Making recovery filesystem ------
+	@echo "----- Making recovery filesystem ------"
 	mkdir -p $(TARGET_RECOVERY_OUT)
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/etc
 	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/tmp
-	echo Copying baseline ramdisk...
+	@echo "Copying baseline ramdisk..."
 	cp -R $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT)
 ifneq ($(BOARD_USES_COMBINED_RECOVERY),true)
 	rm $(TARGET_RECOVERY_ROOT_OUT)/init*.rc
 endif
-	echo Modifying ramdisk contents...
+	@echo "Modifying ramdisk contents..."
 ifeq ($(BOARD_USES_COMBINED_RECOVERY),true)
 	cp -f $(recovery_initrc) $(TARGET_RECOVERY_ROOT_OUT)/
 else
@@ -719,26 +721,26 @@ else
 	cat $(INSTALLED_DEFAULT_PROP_TARGET) $(recovery_build_prop) \
 	        > $(TARGET_RECOVERY_ROOT_OUT)/default.prop
 endif
-	@echo ----- Made recovery filesystem -------- $(TARGET_RECOVERY_ROOT_OUT)
+	@echo "----- Made recovery filesystem --------" $(TARGET_RECOVERY_ROOT_OUT)
 	@touch $(TARGET_RECOVERY_ROOT_TIMESTAMP)
 
 $(recovery_uncompressed_ramdisk): $(MINIGZIP) \
     $(TARGET_RECOVERY_ROOT_TIMESTAMP)
-	@echo ----- Making uncompressed recovery ramdisk ------
+	@echo "----- Making uncompressed recovery ramdisk ------"
 	$(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) > $@
 
 $(recovery_ramdisk): $(MKBOOTFS) \
     $(recovery_uncompressed_ramdisk)
-	@echo ----- Making recovery ramdisk ------
+	@echo "----- Making recovery ramdisk ------"
 	$(MINIGZIP) < $(recovery_uncompressed_ramdisk) > $@
 
 ifndef BOARD_CUSTOM_BOOTIMG_MK
 $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTIMG) \
 		$(recovery_ramdisk) \
 		$(recovery_kernel)
-	@echo ----- Making recovery image ------
+	@echo "----- Making recovery image ------"
 	$(MKBOOTIMG) $(INTERNAL_RECOVERYIMAGE_ARGS) --output $@
-	@echo ----- Made recovery image -------- $@
+	@echo -e ${CL_INS}"Made recovery image: $@"${CL_RST}
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_RECOVERYIMAGE_PARTITION_SIZE),raw)
 endif
 
@@ -751,7 +753,7 @@ recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET)
 
 INSTALLED_RECOVERYZIP_TARGET := $(PRODUCT_OUT)/utilities/update.zip
 $(INSTALLED_RECOVERYZIP_TARGET): $(INSTALLED_RECOVERYIMAGE_TARGET) $(TARGET_OUT)/bin/updater
-	@echo ----- Making recovery zip -----
+	@echo -e ${CL_PFX}"----- Making recovery zip -----"${CL_RST}
 	./build/tools/device/mkrecoveryzip.sh $(PRODUCT_OUT) $(HOST_OUT_JAVA_LIBRARIES)/signapk.jar
 
 .PHONY: recoveryzip
@@ -802,7 +804,7 @@ FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEP
 # system image.
 INSTALLED_FILES_FILE := $(PRODUCT_OUT)/installed-files.txt
 $(INSTALLED_FILES_FILE): $(FULL_SYSTEMIMAGE_DEPS)
-	@echo Installed file list: $@
+	@echo "Installed file list:" $@
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(hide) build/tools/fileslist.py $(TARGET_OUT) > $@
@@ -859,7 +861,7 @@ endif
 
 
 $(INSTALLED_SYSTEMIMAGE): $(BUILT_SYSTEMIMAGE) $(RECOVERY_FROM_BOOT_PATCH) | $(ACP)
-	@echo "Install system fs image: $@"
+	@echo -e ${CL_INS}"Install system fs image: $@"${CL_RST}
 	$(copy-file-to-target)
 	$(hide) $(call assert-max-image-size,$@ $(RECOVERY_FROM_BOOT_PATCH),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE),yaffs)
 
@@ -1139,7 +1141,7 @@ $(BUILT_TARGET_FILES_PACKAGE): \
 		$(APKCERTS_FILE) \
 		$(HOST_OUT_EXECUTABLES)/fs_config \
 		| $(ACP)
-	@echo "Package target files: $@"
+	@echo -e ${CL_PFX}"Package target files:"${CL_RST}" $@"
 	$(hide) rm -rf $@ $(zip_root)
 	$(hide) mkdir -p $(dir $@) $(zip_root)
 	@# Components of the recovery image
@@ -1295,7 +1297,7 @@ else
 endif
 
 $(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(SELINUX_DEPENDS)
-	@echo "Package: $@"
+	@echo -e ${CL_PFX}"Package:"${CL_RST}" $@"
 	$(IMG_FROM_TARGET_SCRIPT) -v \
 	   -s $(extensions) \
 	   -p $(HOST_OUT) \
@@ -1415,7 +1417,7 @@ name := $(name)-apps-$(FILE_NAME_TAG)
 
 APPS_ZIP := $(PRODUCT_OUT)/$(name).zip
 $(APPS_ZIP): $(INSTALLED_SYSTEMIMAGE)
-	@echo "Package apps: $@"
+	@echo -e ${CL_PFX}"Package apps:"${CL_RST}" $@"
 	$(hide) rm -rf $@
 	$(hide) mkdir -p $(dir $@)
 	$(hide) zip -qj $@ $(TARGET_OUT_APPS)/*
@@ -1451,7 +1453,7 @@ name := $(TARGET_PRODUCT)-emulator-$(FILE_NAME_TAG)
 INTERNAL_EMULATOR_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_EMULATOR_PACKAGE_TARGET): $(INTERNAL_EMULATOR_PACKAGE_FILES)
-	@echo "Package: $@"
+	@echo -e ${CL_PFX}"Package:"${CL_RST}" $@"
 	$(hide) zip -qj $@ $(INTERNAL_EMULATOR_PACKAGE_FILES)
 
 # -----------------------------------------------------------------
@@ -1612,11 +1614,11 @@ endif
 INTERNAL_FINDBUGS_XML_TARGET := $(PRODUCT_OUT)/findbugs.xml
 INTERNAL_FINDBUGS_HTML_TARGET := $(PRODUCT_OUT)/findbugs.html
 $(INTERNAL_FINDBUGS_XML_TARGET): $(ALL_FINDBUGS_FILES)
-	@echo UnionBugs: $@
+	@echo "UnionBugs: $@"
 	$(hide) prebuilt/common/findbugs/bin/unionBugs $(ALL_FINDBUGS_FILES) \
 	> $@
 $(INTERNAL_FINDBUGS_HTML_TARGET): $(INTERNAL_FINDBUGS_XML_TARGET)
-	@echo ConvertXmlToText: $@
+	@echo "ConvertXmlToText: $@"
 	$(hide) prebuilt/common/findbugs/bin/convertXmlToText -html:fancy.xsl \
 	$(INTERNAL_FINDBUGS_XML_TARGET)	> $@
 
