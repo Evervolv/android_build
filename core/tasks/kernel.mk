@@ -13,6 +13,9 @@ KERNEL_DEFCONFIG := $(TARGET_KERNEL_CONFIG)
 KERNEL_OUT := $(ANDROID_BUILD_TOP)/$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
 KERNEL_CONFIG := $(KERNEL_OUT)/.config
 
+## Toolchain
+KERNEL_TOOLCHAIN_PREFIX?=$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-eabi-4.6/bin/arm-eabi-
+
 ifeq ($(BOARD_USES_UBOOT),true)
 	TARGET_PREBUILT_INT_KERNEL := $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/uImage
 	TARGET_PREBUILT_INT_KERNEL_TYPE := uImage
@@ -96,14 +99,21 @@ define clean-module-folder
     fi
 endef
 
-ifeq ($(TARGET_ARCH),arm)
-    ifneq ($(USE_CCACHE),)
-      ccache := $(ANDROID_BUILD_TOP)/prebuilt/$(HOST_PREBUILT_TAG)/ccache/ccache
-      # Check that the executable is here.
-      ccache := $(strip $(wildcard $(ccache)))
+ifneq ($(USE_CCACHE),)
+  ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache
+  # Check that the executable is here.
+  ccache := $(strip $(wildcard $(ccache)))
+  ifdef ccache
+    # prepend ccache if necessary
+    ifneq ($(ccache),$(firstword $(KERNEL_TOOLCHAIN_PREFIX)))
+      KERNEL_TOOLCHAIN_PREFIX := $(ccache) $(KERNEL_TOOLCHAIN_PREFIX)
     endif
-    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
-    ccache = 
+    ccache =
+  endif
+endif
+
+ifeq ($(TARGET_ARCH),arm)
+    ARM_CROSS_COMPILE:=CROSS_COMPILE=$(KERNEL_TOOLCHAIN_PREFIX)
 endif
 
 ifeq ($(TARGET_KERNEL_MODULES),)
