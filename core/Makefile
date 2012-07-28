@@ -850,6 +850,8 @@ $(INSTALLED_DTBIMAGE_TARGET) : $(sort $(wildcard $(BOARD_PREBUILT_DTBIMAGE_DIR)/
 endif
 endif
 
+INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+
 # -----------------------------------------------------------------
 # the ramdisk
 ifdef BUILDING_RAMDISK_IMAGE
@@ -908,6 +910,10 @@ INTERNAL_BOOTIMAGE_ARGS := \
 
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_BOOTIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
+endif
+
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+  INTERNAL_BOOTIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
 endif
 
 ifneq ($(BOARD_BUILD_SYSTEM_ROOT_IMAGE),true)
@@ -1817,6 +1823,9 @@ endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_RECOVERYIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
 endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+  INTERNAL_RECOVERYIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
+endif
 
 # Keys authorized to sign OTA packages this build will accept.  The
 # build always uses dev-keys for this; release packaging tools will
@@ -1913,6 +1922,9 @@ endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
 $(INSTALLED_BOOTIMAGE_TARGET): $(INSTALLED_DTBIMAGE_TARGET)
 endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+$(INSTALLED_BOOTIMAGE_TARGET): $(INSTALLED_DTIMAGE_TARGET)
+endif
 
 $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTFS) $(MKBOOTIMG) $(COMPRESSION_COMMAND_DEPS) \
 	    $(INTERNAL_ROOT_FILES) \
@@ -1942,6 +1954,9 @@ $(INSTALLED_RECOVERYIMAGE_TARGET): $(BOARD_RECOVERY_ACPIO)
 endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
 $(INSTALLED_RECOVERYIMAGE_TARGET): $(INSTALLED_DTBIMAGE_TARGET)
+endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+$(INSTALLED_RECOVERYIMAGE_TARGET): $(INSTALLED_DTIMAGE_TARGET)
 endif
 
 $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTFS) $(MKBOOTIMG) $(COMPRESSION_COMMAND_DEPS) \
@@ -3794,6 +3809,9 @@ endif
 ifdef BOARD_KERNEL_PAGESIZE
 	$(hide) echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/pagesize
 endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+	$(hide) echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/dt
+endif
 endif # INSTALLED_RECOVERYIMAGE_TARGET defined or BOARD_USES_RECOVERY_AS_BOOT is true
 	@# Components of the boot image
 	$(hide) mkdir -p $(zip_root)/BOOT
@@ -3823,6 +3841,9 @@ ifdef BOARD_KERNEL_BASE
 endif
 ifdef BOARD_KERNEL_PAGESIZE
 	$(hide) echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/BOOT/pagesize
+endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+	$(hide) echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/BOOT/dt
 endif
 endif # BOARD_USES_RECOVERY_AS_BOOT
 	$(hide) $(foreach t,$(INSTALLED_RADIOIMAGE_TARGET),\
