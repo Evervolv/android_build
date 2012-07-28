@@ -1081,7 +1081,6 @@ $(INSTALLED_DTBIMAGE_TARGET) : $(sort $(wildcard $(BOARD_PREBUILT_DTBIMAGE_DIR)/
 endif
 endif
 
-
 # -----------------------------------------------------------------
 # dtbo image
 ifdef BOARD_PREBUILT_DTBOIMAGE
@@ -1109,6 +1108,10 @@ endif
 endif # BOARD_PREBUILT_DTBOIMAGE
 
 # -----------------------------------------------------------------
+# dt image
+ifdef BOARD_KERNEL_SEPARATED_DT
+INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+endif
 
 # -----------------------------------------------------------------
 # the ramdisk
@@ -1409,6 +1412,8 @@ endif
 ifndef BUILDING_VENDOR_BOOT_IMAGE
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_BOOTIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
+else ifdef BOARD_KERNEL_SEPARATED_DT
+  INTERNAL_BOOTIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
 endif
 endif
 
@@ -2807,6 +2812,9 @@ endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_RECOVERYIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
 endif
+ifdef BOARD_KERNEL_SEPARATED_DT
+  INTERNAL_RECOVERYIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
+endif
 endif # (BUILDING_VENDOR_BOOT_IMAGE and BOARD_USES_RECOVERY_AS_BOOT)
 ifndef BOARD_RECOVERY_MKBOOTIMG_ARGS
   BOARD_RECOVERY_MKBOOTIMG_ARGS := $(BOARD_MKBOOTIMG_ARGS)
@@ -2885,6 +2893,9 @@ ifdef BOARD_INCLUDE_RECOVERY_ACPIO
 endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   recoveryimage-deps += $(INSTALLED_DTBIMAGE_TARGET)
+endif
+ifdef BOARD_KERNEL_SEPARATED_DT
+  recoveryimage-deps += $(INSTALLED_DTIMAGE_TARGET)
 endif
 
 ifeq ($(BOARD_USES_RECOVERY_AS_BOOT),true)
@@ -6595,6 +6606,9 @@ endif
 ifdef BOARD_KERNEL_PAGESIZE
 	echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/pagesize
 endif
+ifdef BOARD_KERNEL_SEPARATED_DT
+	echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/dt
+endif
 endif # not (BUILDING_VENDOR_BOOT_IMAGE and BOARD_USES_RECOVERY_AS_BOOT)
 endif # INSTALLED_RECOVERYIMAGE_TARGET defined or BOARD_USES_RECOVERY_AS_BOOT is true
 	@# Components of the boot image
@@ -6624,6 +6638,9 @@ ifdef BOARD_KERNEL_BASE
 endif
 ifdef BOARD_KERNEL_PAGESIZE
 	echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/BOOT/pagesize
+endif
+ifdef BOARD_KERNEL_SEPARATED_DT
+	echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/BOOT/dt
 endif
 endif # INSTALLED_VENDOR_BOOTIMAGE_TARGET == "" && BOARD_USES_GENERIC_KERNEL_IMAGE != true
 endif # BOARD_USES_RECOVERY_AS_BOOT not true
