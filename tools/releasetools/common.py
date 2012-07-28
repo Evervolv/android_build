@@ -1614,6 +1614,11 @@ def _BuildBootableImage(image_name, sourcedir, fs_config_file, info_dict=None,
     cmd.append("--pagesize")
     cmd.append(open(fn).read().rstrip("\n"))
 
+  fn = os.path.join(sourcedir, "dt")
+  if os.access(fn, os.F_OK):
+    cmd.append("--dt")
+    cmd.append(open(fn).read().rstrip("\n"))
+
   if partition_name == "recovery":
     args = info_dict.get("recovery_mkbootimg_args")
     if not args:
