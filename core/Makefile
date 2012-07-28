@@ -1128,6 +1128,8 @@ $(INSTALLED_DTBIMAGE_TARGET) : $(sort $(wildcard $(BOARD_PREBUILT_DTBIMAGE_DIR)/
 endif
 endif
 
+INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+
 # -----------------------------------------------------------------
 # the ramdisk
 ifdef BUILDING_RAMDISK_IMAGE
@@ -1206,6 +1208,9 @@ endif
 ifndef BUILDING_VENDOR_BOOT_IMAGE
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_BOOTIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
+endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+INTERNAL_BOOTIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
 endif
 endif
 
@@ -2182,6 +2187,9 @@ endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   INTERNAL_RECOVERYIMAGE_ARGS += --dtb $(INSTALLED_DTBIMAGE_TARGET)
 endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+  INTERNAL_RECOVERYIMAGE_ARGS += --dt $(INSTALLED_DTIMAGE_TARGET)
+endif
 endif # INSTALLED_VENDOR_BOOTIMAGE_TARGET not defined
 ifndef BOARD_RECOVERY_MKBOOTIMG_ARGS
   BOARD_RECOVERY_MKBOOTIMG_ARGS := $(BOARD_MKBOOTIMG_ARGS)
@@ -2273,6 +2281,9 @@ ifdef BOARD_INCLUDE_RECOVERY_ACPIO
 endif
 ifdef BOARD_INCLUDE_DTB_IN_BOOTIMG
   recoveryimage-deps += $(INSTALLED_DTBIMAGE_TARGET)
+endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+  recoveryimage-deps += $(INSTALLED_DTIMAGE_TARGET)
 endif
 
 ifeq ($(BOARD_USES_RECOVERY_AS_BOOT),true)
@@ -4648,6 +4659,9 @@ endif
 ifdef BOARD_KERNEL_PAGESIZE
 	echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/pagesize
 endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+	echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/$(PRIVATE_RECOVERY_OUT)/dt
+endif
 endif # INSTALLED_VENDOR_BOOTIMAGE_TARGET not defined
 endif # INSTALLED_RECOVERYIMAGE_TARGET defined or BOARD_USES_RECOVERY_AS_BOOT is true
 	@# Components of the boot image
@@ -4677,6 +4691,9 @@ ifdef BOARD_KERNEL_BASE
 endif
 ifdef BOARD_KERNEL_PAGESIZE
 	echo "$(BOARD_KERNEL_PAGESIZE)" > $(zip_root)/BOOT/pagesize
+endif
+ifeq ($(strip $(BOARD_KERNEL_SEPARATED_DT)),true)
+	echo "$(INSTALLED_DTIMAGE_TARGET)" > $(zip_root)/BOOT/dt
 endif
 else # INSTALLED_VENDOR_BOOTIMAGE_TARGET defined
 	echo "$(GENERIC_KERNEL_CMDLINE)" > $(zip_root)/BOOT/cmdline
