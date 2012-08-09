@@ -106,7 +106,7 @@ ifneq ($(KERNEL_JOBS),)
     JOBS := -j$(KERNEL_JOBS)
 endif
 
-ifneq ($(USE_CCACHE),)
+ifneq (,$(filter true 1,$(USE_CCACHE)))
   ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache
   # Check that the executable is here.
   ccache := $(strip $(wildcard $(ccache)))

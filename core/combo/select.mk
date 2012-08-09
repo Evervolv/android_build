@@ -59,7 +59,7 @@ $(combo_target)STATIC_LIB_SUFFIX := .a
 # Now include the combo for this specific target.
 include $(BUILD_COMBOS)/$(combo_target)$(combo_os_arch).mk
 
-ifneq ($(USE_CCACHE),)
+ifneq (,$(filter true 1,$(USE_CCACHE)))
   CCACHE_HOST_TAG := $(HOST_PREBUILT_TAG)
   # If we are cross-compiling Windows binaries on Linux
   # then use the linux ccache binary instead.
