@@ -1251,6 +1251,9 @@ else
 name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
 endif
 
+# Force first letter to upper, the rest to lower
+name := $(shell echo ${name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
+
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
@@ -1324,6 +1327,9 @@ tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_
 else
 tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
 endif
+
+# Force first letter to upper, the rest to lower
+tarball_name := $(shell echo ${tarball_name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
 
 INTERNAL_FASTBOOT_TARBALL_TARGET := $(PRODUCT_OUT)/$(tarball_name).tar.xz
 
