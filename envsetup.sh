@@ -1460,6 +1460,9 @@ function godir () {
 function cleantree () {
     read -p "Are you sure you want to erase local changes? (y|N)" ans
     test "$ans" = "Y" || test "$ans" = "y" || return
+    if [ ! "$ANDROID_BUILD_TOP" ]; then
+        export ANDROID_BUILD_TOP=$(gettop)
+    fi
     if [ "$(pwd)" != "$ANDROID_BUILD_TOP" ]; then
         cd "$ANDROID_BUILD_TOP"
     fi
@@ -1476,6 +1479,9 @@ function aospremote() {
     then
         echo .git directory not found. Please run this from the root directory of the Android repository you wish to set up.
     fi
+    if [ ! "$ANDROID_BUILD_TOP" ]; then
+        export ANDROID_BUILD_TOP=$(gettop)
+    fi
     PROJECT=`pwd | sed s#$ANDROID_BUILD_TOP/##g`
     if (echo $PROJECT | grep -qv "^device")
     then
@@ -1484,7 +1490,6 @@ function aospremote() {
     git remote add aosp https://android.googlesource.com/$PFX$PROJECT
     echo "Remote 'aosp' created"
 }
-export -f aospremote
 
 function evgerrit() {
     if [ $# -eq 0 ]; then
