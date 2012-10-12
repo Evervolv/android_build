@@ -1316,6 +1316,44 @@ $(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(
 .PHONY: updatepackage
 updatepackage: $(INTERNAL_UPDATE_PACKAGE_TARGET)
 
+# -----------------------------------------------------------------
+# The basic update package (just system and boot)
+
+ifeq ($(NIGHTLY_BUILD),true)
+name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(TARGET_DEVICE)-Nightly-$(shell date +%Y%m%d)
+else
+name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
+endif
+# distinguish from otapackages
+name := $(name)-fastboot-update
+# Force first letter to upper, the rest to lower
+name := $(shell echo ${name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
+
+INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
+
+ifeq ($(TARGET_RELEASETOOLS_EXTENSIONS),)
+# default to common dir for device vendor
+$(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET): extensions := $(TARGET_DEVICE_DIR)/../common
+else
+$(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET): extensions := $(TARGET_RELEASETOOLS_EXTENSIONS)
+endif
+
+ifeq ($(TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT),)
+    IMG_FROM_TARGET_SCRIPT := ./build/tools/releasetools/img_from_target_files
+else
+    IMG_FROM_TARGET_SCRIPT := $(TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT)
+endif
+
+$(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(SELINUX_DEPENDS)
+	@echo -e ${CL_PFX}"Package:"${CL_RST}" $@"
+	$(IMG_FROM_TARGET_SCRIPT) --system_zip -v \
+	   -s $(extensions) \
+	   -p $(HOST_OUT) \
+	   $(BUILT_TARGET_FILES_PACKAGE) $@
+
+.PHONY: systemupdatepackage
+systemupdatepackage: $(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET)
+
 # ------------------------------------------
 # Tarball of system/boot images for fastboot
 define build-fastboot_tarball-target
