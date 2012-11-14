@@ -185,19 +185,6 @@ ifneq ($(strip $(TARGET_BUILD_APPS)),)
 all_product_configs := $(call get-product-makefiles,\
     $(SRC_TARGET_DIR)/product/AndroidProducts.mk)
 else
-<<<<<<< HEAD
-  ifneq ($(EV_BUILD),)
-    $(call import-products, device/*/$(EV_BUILD)/ev.mk)
-  else
-  # Read in all of the product definitions specified by the AndroidProducts.mk
-    # files in the tree.
-    #
-    #TODO: when we start allowing direct pointers to product files,
-    # guarantee that they're in this list.
-    $(call import-products, $(get-all-product-makefiles))
-  endif
-endif # TARGET_BUILD_APPS
-=======
 # Read in all of the product definitions specified by the AndroidProducts.mk
 # files in the tree.
 all_product_configs := $(get-all-product-makefiles)
@@ -227,6 +214,10 @@ _cpm_word2 :=
 current_product_makefile := $(strip $(current_product_makefile))
 all_product_makefiles := $(strip $(all_product_makefiles))
 
+ifneq ($(EV_BUILD),)
+  current_product_makefile := device/*/$(EV_BUILD)/ev.mk
+endif
+
 ifneq (,$(filter product-graph dump-products, $(MAKECMDGOALS)))
 # Import all product makefiles.
 $(call import-products, $(all_product_makefiles))
@@ -242,7 +233,6 @@ $(call import-products, $(current_product_makefile))
 endif  # Import all or just the current product makefile
 
 # Sanity check
->>>>>>> aosp/jb-mr1-release
 $(check-all-products)
 
 ifneq ($(filter dump-products, $(MAKECMDGOALS)),)
@@ -355,7 +345,7 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES := \
     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_DEFAULT_PROPERTY_OVERRIDES))
 
 PRODUCT_BUILD_PROP_OVERRIDES := \
-	$(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_BUILD_PROP_OVERRIDES))
+    $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_BUILD_PROP_OVERRIDES))
 
 # Should we use the default resources or add any product specific overlays
 PRODUCT_PACKAGE_OVERLAYS := \
