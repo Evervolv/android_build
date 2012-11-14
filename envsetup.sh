@@ -1,6 +1,8 @@
 function hmm() {
 cat <<EOF
 Invoke ". build/envsetup.sh" from your shell to add the following functions to your environment:
+- lunch:   lunch <product_name>-<build_variant>
+- tapas:   tapas [<App1> <App2> ...] [arm|x86|mips] [eng|userdebug|user]
 - croot:   Changes directory to the top of the tree.
 - m:       Makes from the top of the tree.
 - mm:      Builds all of the modules in the current directory.
@@ -126,9 +128,11 @@ function setpaths()
     export ANDROID_EABI_TOOLCHAIN=
     local ARCH=$(get_build_var TARGET_ARCH)
     case $ARCH in
-        x86) toolchaindir=x86/i686-android-linux-4.4.3/bin
+        x86) toolchaindir=x86/i686-linux-android-4.6/bin
             ;;
         arm) toolchaindir=arm/arm-linux-androideabi-4.6/bin
+            ;;
+        mips) toolchaindir=mips/mipsel-linux-android-4.6/bin
             ;;
         *)
             echo "Can't find toolchain for unknown architecture: $ARCH"
@@ -139,25 +143,26 @@ function setpaths()
         export ANDROID_EABI_TOOLCHAIN=$gccprebuiltdir/$toolchaindir
     fi
 
-    export ARM_EABI_TOOLCHAIN=
+    unset ARM_EABI_TOOLCHAIN ARM_EABI_TOOLCHAIN_PATH
     case $ARCH in
-        x86) toolchaindir=x86/i686-eabi-4.4.3/bin
+        arm)
+            toolchaindir=arm/arm-eabi-4.6/bin
+            if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
+                 export ARM_EABI_TOOLCHAIN="$gccprebuiltdir/$toolchaindir"
+                 ARM_EABI_TOOLCHAIN_PATH=":$gccprebuiltdir/$toolchaindir"
+            fi
             ;;
-        arm) toolchaindir=arm/arm-eabi-4.6/bin
+        mips) toolchaindir=mips/mips-eabi-4.4.3/bin
             ;;
         *)
-            echo "Can't find toolchain for unknown architecture: $ARCH"
-            toolchaindir=xxxxxxxxx
+            # No need to set ARM_EABI_TOOLCHAIN for other ARCHs
             ;;
     esac
-    if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
-        export ARM_EABI_TOOLCHAIN=$gccprebuiltdir/$toolchaindir
-    fi
 
     export ANDROID_TOOLCHAIN=$ANDROID_EABI_TOOLCHAIN
     export ANDROID_QTOOLS=$T/development/emulator/qtools
     export ANDROID_DEV_SCRIPTS=$T/development/scripts
-    export ANDROID_BUILD_PATHS=:$(get_build_var ANDROID_BUILD_PATHS):$ANDROID_QTOOLS:$ANDROID_TOOLCHAIN:$ARM_EABI_TOOLCHAIN$CODE_REVIEWS:$ANDROID_DEV_SCRIPTS
+    export ANDROID_BUILD_PATHS=:$(get_build_var ANDROID_BUILD_PATHS):$ANDROID_QTOOLS:$ANDROID_TOOLCHAIN$ARM_EABI_TOOLCHAIN_PATH$CODE_REVIEWS:$ANDROID_DEV_SCRIPTS
     export PATH=$PATH$ANDROID_BUILD_PATHS
 
     unset ANDROID_JAVA_TOOLCHAIN
@@ -212,13 +217,14 @@ function set_sequence_number()
 function settitle()
 {
     if [ "$STAY_OFF_MY_LAWN" = "" ]; then
+        local arch=$(gettargetarch)
         local product=$TARGET_PRODUCT
         local variant=$TARGET_BUILD_VARIANT
         local apps=$TARGET_BUILD_APPS
         if [ -z "$apps" ]; then
-            export PROMPT_COMMAND="echo -ne \"\033]0;[${product}-${variant}] ${USER}@${HOSTNAME}: ${PWD}\007\""
+            export PROMPT_COMMAND="echo -ne \"\033]0;[${arch}-${product}-${variant}] ${USER}@${HOSTNAME}: ${PWD}\007\""
         else
-            export PROMPT_COMMAND="echo -ne \"\033]0;[$apps $variant] ${USER}@${HOSTNAME}: ${PWD}\007\""
+            export PROMPT_COMMAND="echo -ne \"\033]0;[$arch $apps $variant] ${USER}@${HOSTNAME}: ${PWD}\007\""
         fi
     fi
 }
@@ -425,6 +431,7 @@ function add_lunch_combo()
 add_lunch_combo full-eng
 add_lunch_combo full_x86-eng
 add_lunch_combo vbox_x86-eng
+add_lunch_combo full_mips-eng
 
 function print_lunch_menu()
 {
@@ -580,13 +587,24 @@ function breakfast()
 # Run tapas with one ore more app names (from LOCAL_PACKAGE_NAME)
 function tapas()
 {
+    local arch=$(echo -n $(echo $* | xargs -n 1 echo | \grep -E '^(arm|x86|mips)$'))
     local variant=$(echo -n $(echo $* | xargs -n 1 echo | \grep -E '^(user|userdebug|eng)$'))
-    local apps=$(echo -n $(echo $* | xargs -n 1 echo | \grep -E -v '^(user|userdebug|eng)$'))
+    local apps=$(echo -n $(echo $* | xargs -n 1 echo | \grep -E -v '^(user|userdebug|eng|arm|x86|mips)$'))
 
+    if [ $(echo $arch | wc -w) -gt 1 ]; then
+        echo "tapas: Error: Multiple build archs supplied: $arch"
+        return
+    fi
     if [ $(echo $variant | wc -w) -gt 1 ]; then
         echo "tapas: Error: Multiple build variants supplied: $variant"
         return
     fi
+
+    local product=full
+    case $arch in
+      x86)   product=full_x86;;
+      mips)  product=full_mips;;
+    esac
     if [ -z "$variant" ]; then
         variant=eng
     fi
@@ -594,7 +612,7 @@ function tapas()
         apps=all
     fi
 
-    export TARGET_PRODUCT=full
+    export TARGET_PRODUCT=$product
     export TARGET_BUILD_VARIANT=$variant
     export TARGET_BUILD_TYPE=release
     export TARGET_BUILD_APPS=$apps
@@ -651,7 +669,7 @@ function findmakefile()
     local HERE=$PWD
     T=
     while [ \( ! \( -f $TOPFILE \) \) -a \( $PWD != "/" \) ]; do
-        T=$PWD
+        T=`PWD= /bin/pwd`
         if [ -f "$T/Android.mk" ]; then
             echo $T/Android.mk
             cd $HERE > /dev/null
@@ -790,8 +808,9 @@ function gdbclient()
    local ARCH=$(get_build_var TARGET_ARCH)
    local GDB
    case "$ARCH" in
-       x86) GDB=i686-android-linux-gdb;;
+       x86) GDB=i686-linux-android-gdb;;
        arm) GDB=arm-linux-androideabi-gdb;;
+       mips) GDB=mipsel-linux-android-gdb;;
        *) echo "Unknown arch $ARCH"; return 1;;
    esac
 
@@ -831,7 +850,7 @@ function gdbclient()
        fi
 
        echo >|"$OUT_ROOT/gdbclient.cmds" "set solib-absolute-prefix $OUT_SYMBOLS"
-       echo >>"$OUT_ROOT/gdbclient.cmds" "set solib-search-path $OUT_SO_SYMBOLS:$OUT_SO_SYMBOLS/hw:$OUT_SO_SYMBOLS/ssl/engines"
+       echo >>"$OUT_ROOT/gdbclient.cmds" "set solib-search-path $OUT_SO_SYMBOLS:$OUT_SO_SYMBOLS/hw:$OUT_SO_SYMBOLS/ssl/engines:$OUT_SO_SYMBOLS/drm:$OUT_SO_SYMBOLS/egl:$OUT_SO_SYMBOLS/soundfx"
        echo >>"$OUT_ROOT/gdbclient.cmds" "target remote $PORT"
        echo >>"$OUT_ROOT/gdbclient.cmds" ""
 
@@ -858,6 +877,11 @@ case `uname -s` in
         ;;
 esac
 
+function gettargetarch
+{
+    get_build_var TARGET_ARCH
+}
+
 function jgrep()
 {
     find . -name .repo -prune -o -name .git -prune -o  -type f -name "*\.java" -print0 | xargs -0 grep --color -n "$@"
@@ -877,7 +901,7 @@ case `uname -s` in
     Darwin)
         function mgrep()
         {
-            find -E . -name .repo -prune -o -name .git -prune -o  -type f -iregex '.*/(Makefile|Makefile\..*|.*\.make|.*\.mak|.*\.mk)' -print0 | xargs -0 grep --color -n "$@"
+            find -E . -name .repo -prune -o -name .git -prune -o -path ./out -prune -o -type f -iregex '.*/(Makefile|Makefile\..*|.*\.make|.*\.mak|.*\.mk)' -print0 | xargs -0 grep --color -n "$@"
         }
 
         function treegrep()
@@ -889,7 +913,7 @@ case `uname -s` in
     *)
         function mgrep()
         {
-            find . -name .repo -prune -o -name .git -prune -o -regextype posix-egrep -iregex '(.*\/Makefile|.*\/Makefile\..*|.*\.make|.*\.mak|.*\.mk)' -type f -print0 | xargs -0 grep --color -n "$@"
+            find . -name .repo -prune -o -name .git -prune -o -path ./out -prune -o -regextype posix-egrep -iregex '(.*\/Makefile|.*\/Makefile\..*|.*\.make|.*\.mak|.*\.mk)' -type f -print0 | xargs -0 grep --color -n "$@"
         }
 
         function treegrep()
@@ -913,7 +937,8 @@ function tracedmdump()
         return
     fi
     local prebuiltdir=$(getprebuilt)
-    local KERNEL=$T/prebuilt/android-arm/kernel/vmlinux-qemu
+    local arch=$(gettargetarch)
+    local KERNEL=$T/prebuilts/qemu-kernel/$arch/vmlinux-qemu
 
     local TRACE=$1
     if [ ! "$TRACE" ] ; then
@@ -965,7 +990,7 @@ function runhat()
         shift 2
     fi
     local adbOptions=${adbTarget}
-    echo adbOptions = ${adbOptions}
+    #echo adbOptions = ${adbOptions}
 
     # runhat options
     local targetPid=$1
@@ -982,8 +1007,11 @@ function runhat()
     fi
 
     # issue "am" command to cause the hprof dump
-    local devFile=/sdcard/hprof-$targetPid
+    local sdcard=$(adb shell echo -n '$EXTERNAL_STORAGE')
+    local devFile=$sdcard/hprof-$targetPid
+    #local devFile=/data/local/hprof-$targetPid
     echo "Poking $targetPid and waiting for data..."
+    echo "Storing data at $devFile"
     adb ${adbOptions} shell am dumpheap $targetPid $devFile
     echo "Press enter when logcat shows \"hprof: heap dump completed\""
     echo -n "> "
@@ -1018,6 +1046,28 @@ function getbugreports()
         adb pull /sdcard/bugreports/${report} ${report}
         gunzip ${report}
     done
+}
+
+function getsdcardpath()
+{
+    adb ${adbOptions} shell echo -n \$\{EXTERNAL_STORAGE\}
+}
+
+function getscreenshotpath()
+{
+    echo "$(getsdcardpath)/Pictures/Screenshots"
+}
+
+function getlastscreenshot()
+{
+    local screenshot_path=$(getscreenshotpath)
+    local screenshot=`adb ${adbOptions} ls ${screenshot_path} | grep Screenshot_[0-9-]*.*\.png | sort -rk 3 | cut -d " " -f 4 | head -n 1`
+    if [ "$screenshot" = "" ]; then
+        echo "No screenshots found."
+        return
+    fi
+    echo "${screenshot}"
+    adb ${adbOptions} pull ${screenshot_path}/${screenshot}
 }
 
 function startviewserver()

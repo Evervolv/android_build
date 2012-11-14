@@ -181,10 +181,11 @@ include $(BUILD_SYSTEM)/product.mk
 include $(BUILD_SYSTEM)/device.mk
 
 ifneq ($(strip $(TARGET_BUILD_APPS)),)
-  # An unbundled app build needs only the core product makefiles.
-  $(call import-products,$(call get-product-makefiles,\
-      $(SRC_TARGET_DIR)/product/AndroidProducts.mk))
+# An unbundled app build needs only the core product makefiles.
+all_product_configs := $(call get-product-makefiles,\
+    $(SRC_TARGET_DIR)/product/AndroidProducts.mk)
 else
+<<<<<<< HEAD
   ifneq ($(EV_BUILD),)
     $(call import-products, device/*/$(EV_BUILD)/ev.mk)
   else
@@ -196,6 +197,52 @@ else
     $(call import-products, $(get-all-product-makefiles))
   endif
 endif # TARGET_BUILD_APPS
+=======
+# Read in all of the product definitions specified by the AndroidProducts.mk
+# files in the tree.
+all_product_configs := $(get-all-product-makefiles)
+endif
+
+# Find the product config makefile for the current product.
+# all_product_configs consists items like:
+# <product_name>:<path_to_the_product_makefile>
+# or just <path_to_the_product_makefile> in case the product name is the
+# same as the base filename of the product config makefile.
+current_product_makefile :=
+all_product_makefiles :=
+$(foreach f, $(all_product_configs),\
+    $(eval _cpm_words := $(subst :,$(space),$(f)))\
+    $(eval _cpm_word1 := $(word 1,$(_cpm_words)))\
+    $(eval _cpm_word2 := $(word 2,$(_cpm_words)))\
+    $(if $(_cpm_word2),\
+        $(eval all_product_makefiles += $(_cpm_word2))\
+        $(if $(filter $(TARGET_PRODUCT),$(_cpm_word1)),\
+            $(eval current_product_makefile += $(_cpm_word2)),),\
+        $(eval all_product_makefiles += $(f))\
+        $(if $(filter $(TARGET_PRODUCT),$(basename $(notdir $(f)))),\
+            $(eval current_product_makefile += $(f)),)))
+_cpm_words :=
+_cpm_word1 :=
+_cpm_word2 :=
+current_product_makefile := $(strip $(current_product_makefile))
+all_product_makefiles := $(strip $(all_product_makefiles))
+
+ifneq (,$(filter product-graph dump-products, $(MAKECMDGOALS)))
+# Import all product makefiles.
+$(call import-products, $(all_product_makefiles))
+else
+# Import just the current product.
+ifndef current_product_makefile
+$(error Cannot locate config makefile for product "$(TARGET_PRODUCT)")
+endif
+ifneq (1,$(words $(current_product_makefile)))
+$(error Product "$(TARGET_PRODUCT)" ambiguous: matches $(current_product_makefile))
+endif
+$(call import-products, $(current_product_makefile))
+endif  # Import all or just the current product makefile
+
+# Sanity check
+>>>>>>> aosp/jb-mr1-release
 $(check-all-products)
 
 ifneq ($(filter dump-products, $(MAKECMDGOALS)),)
@@ -207,7 +254,12 @@ endif
 # file defining that product.
 #
 INTERNAL_PRODUCT := $(call resolve-short-product-name, $(TARGET_PRODUCT))
-#$(error TARGET_PRODUCT $(TARGET_PRODUCT) --> $(INTERNAL_PRODUCT))
+ifneq ($(current_product_makefile),$(INTERNAL_PRODUCT))
+$(error PRODUCT_NAME inconsistent in $(current_product_makefile) and $(INTERNAL_PRODUCT))
+endif
+current_product_makefile :=
+all_product_makefiles :=
+all_product_configs :=
 
 # Find the device that this product maps to.
 TARGET_DEVICE := $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_DEVICE)
@@ -282,11 +334,12 @@ ifneq (1,$(words $(PRODUCT_DEFAULT_DEV_CERTIFICATE)))
 endif
 endif
 
-# A list of words like <source path>:<destination path>.  The file at
-# the source path should be copied to the destination path when building
-# this product.  <destination path> is relative to $(PRODUCT_OUT), so
-# it should look like, e.g., "system/etc/file.xml".  The rules
-# for these copy steps are defined in config/Makefile.
+# A list of words like <source path>:<destination path>[:<owner>].
+# The file at the source path should be copied to the destination path
+# when building  this product.  <destination path> is relative to
+# $(PRODUCT_OUT), so it should look like, e.g., "system/etc/file.xml".
+# The rules for these copy steps are defined in build/core/Makefile.
+# The optional :<owner> is used to indicate the owner of a vendor file.
 PRODUCT_COPY_FILES := \
     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_COPY_FILES))
 

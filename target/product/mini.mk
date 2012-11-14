@@ -58,7 +58,9 @@ PRODUCT_PACKAGES += \
     SettingsProvider \
     TelephonyProvider \
     UserDictionaryProvider \
+    abcc \
     apache-xml \
+    audio \
     bouncycastle \
     bu \
     cacerts \
@@ -90,6 +92,7 @@ PRODUCT_PACKAGES += \
     libOpenSLES \
     libaudiopreprocessing \
     libaudioutils \
+    libbcc \
     libcrypto \
     libdownmix \
     libdvm \
@@ -106,10 +109,13 @@ PRODUCT_PACKAGES += \
     libmdnssd \
     libnativehelper \
     libnfc_ndef \
+    libportable \
     libpowermanager \
     libspeexresampler \
     libsqlite_jni \
     libssl \
+    libstagefright \
+    libstagefright_chromium_http \
     libstagefright_soft_aacdec \
     libstagefright_soft_aacenc \
     libstagefright_soft_amrdec \
@@ -129,11 +135,17 @@ PRODUCT_PACKAGES += \
     libwebrtc_audio_preprocessing \
     libwilhelm \
     libz \
+    lint \
     mdnsd \
+    mms-common \
+    network \
+    pand \
     requestsync \
     screencap \
+    sdptool \
     sensorservice \
-    lint
+    telephony-common \
+    wpa_supplicant
 
 PRODUCT_COPY_FILES += \
     system/core/rootdir/init.usb.rc:root/init.usb.rc \
@@ -142,13 +154,11 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PACKAGES += \
     Bluetooth \
+    FusedLocation \
     InputDevices \
     LatinIME \
-    Launcher2 \
     Phone \
     Provision \
-    Settings \
-    SystemUI \
     hostapd \
     wpa_supplicant.conf
 
@@ -174,11 +184,6 @@ PRODUCT_PACKAGES += \
     local_time.default
 
 PRODUCT_COPY_FILES += \
-    system/bluetooth/data/audio.conf:system/etc/bluetooth/audio.conf \
-    system/bluetooth/data/auto_pairing.conf:system/etc/bluetooth/auto_pairing.conf \
-    system/bluetooth/data/blacklist.conf:system/etc/bluetooth/blacklist.conf \
-    system/bluetooth/data/input.conf:system/etc/bluetooth/input.conf \
-    system/bluetooth/data/network.conf:system/etc/bluetooth/network.conf \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -189,8 +194,19 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += \
     drmserver \
     libdrmframework \
-    libdrmframework_jni
+    libdrmframework_jni \
+    WAPPushManager
 
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 $(call inherit-product-if-exists, frameworks/base/data/keyboards/keyboards.mk)
 $(call inherit-product-if-exists, frameworks/base/data/fonts/fonts.mk)
 $(call inherit-product-if-exists, frameworks/base/data/sounds/AudioPackage5.mk)
+
+#----------------- For PDK ------------------------------
+PRODUCT_PACKAGES += \
+    TestingCamera \
+    Home \
+    DummySystemUI \
+    DummySettings \
+    libsurfaceflinger_ddmconnection
+
