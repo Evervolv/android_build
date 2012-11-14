@@ -1836,7 +1836,7 @@ fi
 for f in `test -d device && find -L device -maxdepth 4 -name 'vendorsetup.sh' 2> /dev/null` \
          `test -d vendor && find -L vendor -maxdepth 4 -name 'vendorsetup.sh' 2> /dev/null`
 do
-    echo "including $f"
+#    echo "including $f"
     . $f
 done
 unset f
