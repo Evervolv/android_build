@@ -324,9 +324,9 @@ def SignOutput(temp_zip_name, output_zip_name):
   os.system("touch " + output_zip_name.replace(".zip", ".log"))
 
 
-def AppendAssertions(script, input_zip):
+def AppendAssertions(script, info_dict):
   if OPTIONS.override_device == "auto":
-    device = GetBuildProp("ro.product.device", input_zip)
+    device = GetBuildProp("ro.product.device", info_dict)
   else:
     device = OPTIONS.override_device
   script.AssertDevice(device)
