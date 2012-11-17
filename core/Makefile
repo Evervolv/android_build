@@ -12,6 +12,12 @@ ifneq ($(BUILD_WITH_COLORS),0)
   CL_RST="\033[0m"
 endif
 
+ifeq ($(NIGHTLY_BUILD),true)
+EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-Nightly-$(shell date +%Y.%m.%d)-$(TARGET_DEVICE)
+else
+EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
+endif
+
 # HACK: clear LOCAL_PATH from including last build target before calling
 # intermedites-dir-for
 LOCAL_PATH := $(BUILD_SYSTEM)
@@ -1491,14 +1497,7 @@ ifneq ($(recovery_fstab),)
 # -----------------------------------------------------------------
 # OTA update package
 
-ifeq ($(NIGHTLY_BUILD),true)
-tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(TARGET_DEVICE)-Nightly-$(shell date +%Y%m%d)
-else
-tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
-endif
-
-# Force first letter to upper, the rest to lower
-name := $(shell echo ${name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
+name := $(EV_PREFIX)
 
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
