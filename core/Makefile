@@ -11,6 +11,12 @@ ifneq ($(BUILD_WITH_COLORS),0)
   CL_RST="\033[0m"
 endif
 
+ifeq ($(NIGHTLY_BUILD),true)
+EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-Nightly-$(shell date +%Y.%m.%d)-$(TARGET_DEVICE)
+else
+EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
+endif
+
 # Pick a reasonable string to use to identify files.
 ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
   # BUILD_NUMBER has a timestamp in it, which means that
@@ -1261,14 +1267,7 @@ ifneq ($(recovery_fstab),)
 # -----------------------------------------------------------------
 # OTA update package
 
-ifeq ($(NIGHTLY_BUILD),true)
-name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(TARGET_DEVICE)-Nightly-$(shell date +%Y%m%d)
-else
-name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
-endif
-
-# Force first letter to upper, the rest to lower
-name := $(shell echo ${name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
+name := $(EV_PREFIX)
 
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
@@ -1335,15 +1334,9 @@ updatepackage: $(INTERNAL_UPDATE_PACKAGE_TARGET)
 # -----------------------------------------------------------------
 # The basic update package (just system and boot)
 
-ifeq ($(NIGHTLY_BUILD),true)
-name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(TARGET_DEVICE)-Nightly-$(shell date +%Y%m%d)
-else
-name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
-endif
+name := $(EV_PREFIX)
 # distinguish from otapackages
 name := $(name)-fastboot-update
-# Force first letter to upper, the rest to lower
-name := $(shell echo ${name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
 
 INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
@@ -1383,14 +1376,7 @@ define build-fastboot_tarball-target
     $(call pretty,"Install fastboot tarball: $(INTERNAL_FASTBOOT_TARBALL_TARGET)")
 endef
 
-ifeq ($(NIGHTLY_BUILD),true)
-tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-$(TARGET_DEVICE)-Nightly-$(shell date +%Y%m%d)
-else
-tarball_name := Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
-endif
-
-# Force first letter to upper, the rest to lower
-tarball_name := $(shell echo ${tarball_name} | sed 's/\(^.\)\(.*\)/\U\1\L\2/')
+tarball_name := $(EV_PREFIX)
 
 INTERNAL_FASTBOOT_TARBALL_TARGET := $(PRODUCT_OUT)/$(tarball_name).tar.xz
 
