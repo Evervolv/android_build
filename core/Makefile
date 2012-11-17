@@ -1353,41 +1353,16 @@ else
     IMG_FROM_TARGET_SCRIPT := $(TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT)
 endif
 
-$(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(SELINUX_DEPENDS)
+$(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo -e ${CL_PFX}"Package:"${CL_RST}" $@"
 	$(IMG_FROM_TARGET_SCRIPT) --system_zip -v \
 	   -s $(extensions) \
 	   -p $(HOST_OUT) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
+	@echo -e ${CL_PFX}"Created:"${CL_RST}" $@"
 
 .PHONY: systemupdatepackage
 systemupdatepackage: $(INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET)
-
-# ------------------------------------------
-# Tarball of system/boot images for fastboot
-define build-fastboot_tarball-target
-    $(call pretty,"Target fastboot tarball: $(tarball_name)")
-    rm -f $(INTERNAL_FASTBOOT_TARBALL_TARGET)
-    tar --create --xz \
-        --file=$(INTERNAL_FASTBOOT_TARBALL_TARGET) \
-        --directory=$(PRODUCT_OUT) \
-        system.img \
-        boot.img
-    $(call pretty,"Install fastboot tarball: $(INTERNAL_FASTBOOT_TARBALL_TARGET)")
-endef
-
-tarball_name := $(EV_PREFIX)
-
-INTERNAL_FASTBOOT_TARBALL_TARGET := $(PRODUCT_OUT)/$(tarball_name).tar.xz
-
-$(INTERNAL_FASTBOOT_TARBALL_TARGET): \
-		$(INSTALLED_BOOTIMAGE_TARGET) \
-		$(INSTALLED_USERDATAIMAGE_TARGET) \
-		$(INSTALLED_SYSTEMIMAGE)
-	$(build-fastboot_tarball-target)
-
-.PHONY: fastboot_tarball
-fastboot_tarball: $(INTERNAL_FASTBOOT_TARBALL_TARGET)
 
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
