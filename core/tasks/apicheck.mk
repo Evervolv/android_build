@@ -18,7 +18,8 @@
 #
 
 # skip api check for TINY_ANDROID and PDK buid
-ifeq (,$(filter true, $(BUILD_TINY_ANDROID) $(TARGET_BUILD_PDK)))
+#ifeq (,$(filter true, $(BUILD_TINY_ANDROID) $(TARGET_BUILD_PDK)))
+ifeq (true, false)
 
 .PHONY: checkapi
 

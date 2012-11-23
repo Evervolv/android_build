@@ -455,33 +455,123 @@ subdirs += build/tools/acp
 endif
 
 else	# !SDK_ONLY
-ifeq ($(BUILD_TINY_ANDROID), true)
+#ifeq ($(BUILD_TINY_ANDROID), true)
 
 # TINY_ANDROID is a super-minimal build configuration, handy for board
 # bringup and very low level debugging
 
 subdirs := \
+	abi/cpp \
 	bionic \
-	system/core \
-	system/extras/ext4_utils \
-	system/extras/su \
+	bootable/recovery \
 	build/libs \
 	build/target \
 	build/tools/acp \
+	build/tools/check_prereq \
+	build/tools/fs_config \
+	build/tools/signapk \
+	build/tools/zipalign \
+	development/tools/emulator/opengl \
+	external/aac \
+	external/bsdiff \
+	external/bzip2 \
+	external/e2fsprogs \
+	external/expat \
+	external/flac \
+	external/freetype \
 	external/gcc-demangle \
+	external/genext2fs \
+	external/giflib \
+	external/gtest \
+	external/icu4c \
+	external/jhead \
+	external/jpeg \
+	external/liblzf \
+	external/libpng \
+	external/libvpx \
 	external/mksh \
 	external/openssl \
+	external/protobuf \
+	external/skia \
+	external/sonivox \
+	external/speex \
+	external/sqlite \
+	external/stlport \
+	external/tinyalsa \
+	external/tremolo \
+	external/webp \
+	external/webrtc \
+	external/wpa_supplicant_6 \
+	external/wpa_supplicant_8 \
 	external/yaffs2 \
-	external/zlib
-else	# !BUILD_TINY_ANDROID
+	external/zlib \
+	frameworks/av/camera \
+	frameworks/av/drm \
+	frameworks/av/media/common_time \
+	frameworks/av/media/libaah_rtp \
+	frameworks/av/media/libeffects \
+	frameworks/av/media/libmedia \
+	frameworks/av/media/libmedia_native \
+	frameworks/av/media/libmediaplayerservice \
+	frameworks/av/media/libstagefright \
+	frameworks/av/media/mediaserver \
+	frameworks/av/services/audioflinger \
+	frameworks/av/services/camera/libcameraservice \
+	frameworks/base/cmds/bootanimation \
+	frameworks/base/cmds/sensorservice \
+	frameworks/base/cmds/servicemanager \
+	frameworks/base/libs/androidfw \
+	frameworks/base/media/mediaserver \
+	frameworks/base/services/input \
+	frameworks/base/tools/aapt \
+	frameworks/native/cmds/surfaceflinger \
+	frameworks/native/libs \
+	frameworks/native/opengl \
+	frameworks/native/services \
+	frameworks/opt/emoji \
+	hardware/broadcom \
+	hardware/broadcom/wlan/bcmdhd \
+	hardware/invensense/libsensors \
+	hardware/invensense/mlsdk \
+	hardware/libhardware \
+	hardware/libhardware_legacy \
+	hardware/ril \
+	hardware/ti \
+	system/core \
+	system/extras/ext4_utils \
+	system/media/audio_utils \
+	system/su \
+	vendor/cm
+
+# tf101
+ifeq ($(TARGET_PRODUCT), cm_tf101)
+subdirs += \
+	device/asus \
+	vendor/asus
+else #tf101
+# maguro
+ifeq ($(TARGET_PRODUCT), cm_maguro)
+subdirs += \
+	device/samsung \
+	vendor/samsung
+endif
+endif
+
+# Canonical et. al.
+subdirs += \
+	busybox \
+	canonical
+
+#else  # !BUILD_TINY_ANDROID
+
 #
 # Typical build; include any Android.mk files we can find.
 #
-subdirs := $(TOP)
+#subdirs := $(TOP)
 
 FULL_BUILD := true
 
-endif	# !BUILD_TINY_ANDROID
+#endif	# !BUILD_TINY_ANDROID
 
 endif	# !SDK_ONLY
 

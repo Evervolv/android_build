@@ -127,7 +127,10 @@ PRODUCT_PACKAGES += \
     mms-common \
     zoneinfo.dat \
     zoneinfo.idx \
-    zoneinfo.version
+    zoneinfo.version \
+    libsf_compat_layer \
+    ubuntu_chroot \
+    uchroot
 
 PRODUCT_COPY_FILES += \
     system/core/rootdir/init.usb.rc:root/init.usb.rc \
