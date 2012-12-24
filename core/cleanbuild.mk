@@ -188,6 +188,7 @@ installclean_files := \
 	$(PRODUCT_OUT)/obj/PACKAGING \
 	$(PRODUCT_OUT)/recovery \
 	$(PRODUCT_OUT)/root \
+	$(PRODUCT_OUT)/kernel \
 	$(PRODUCT_OUT)/system \
 	$(PRODUCT_OUT)/dex_bootjars \
 	$(PRODUCT_OUT)/obj/JAVA_LIBRARIES \
