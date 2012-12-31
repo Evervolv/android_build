@@ -15,16 +15,9 @@ KERNEL_CONFIG := $(KERNEL_OUT)/.config
 
 # You can set KERNEL_TOOLCHAIN_PREFIX to get gcc from somewhere else
 ifeq ($(strip $(KERNEL_TOOLCHAIN_PREFIX)),)
-  ifneq (,$(filter true 1,$(LINARO_BUILD)))
-    KERNEL_TOOLCHAIN_ROOT:=$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-linux-linaro-4.7
-  else # gcc 4.6
-    KERNEL_TOOLCHAIN_ROOT:=$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-eabi-4.6
-  endif # LINARO_BUILD
+KERNEL_TOOLCHAIN_ROOT:=$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-eabi-4.6
 KERNEL_TOOLCHAIN_PREFIX:=$(KERNEL_TOOLCHAIN_ROOT)/bin/arm-eabi-
 endif
-
-## GCC4.7
-KERNEL_CFLAGS=$(call cc-ifversion, -ge, 47, $(call cc-option,"-mno-unaligned-access", ) $(call cc-option,"-fno-pic", ))
 
 ifeq ($(BOARD_USES_UBOOT),true)
 	TARGET_PREBUILT_INT_KERNEL := $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/uImage
