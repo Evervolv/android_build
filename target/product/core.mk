@@ -128,6 +128,9 @@ PRODUCT_PACKAGES += \
     zoneinfo.dat \
     zoneinfo.idx \
     zoneinfo.version \
+    ubuntuappmanager \
+    libinput \
+    libubuntu_application_api \
     libsf_compat_layer \
     ubuntu_chroot \
     uchroot
