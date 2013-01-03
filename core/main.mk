@@ -519,6 +519,7 @@ subdirs := \
 	frameworks/av/services/camera/libcameraservice \
 	frameworks/base/cmds/bootanimation \
 	frameworks/base/cmds/sensorservice \
+	frameworks/base/cmds/screencap \
 	frameworks/base/cmds/servicemanager \
 	frameworks/base/libs/androidfw \
 	frameworks/base/media/mediaserver \
