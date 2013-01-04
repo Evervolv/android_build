@@ -473,8 +473,11 @@ subdirs := \
 	build/tools/zipalign \
 	development/tools/emulator/opengl \
 	external/aac \
+	external/bouncycastle \
 	external/bsdiff \
 	external/bzip2 \
+	external/clang \
+	external/compiler-rt \
 	external/e2fsprogs \
 	external/expat \
 	external/flac \
@@ -489,6 +492,7 @@ subdirs := \
 	external/liblzf \
 	external/libpng \
 	external/libvpx \
+	external/llvm \
 	external/mksh \
 	external/openssl \
 	external/protobuf \
@@ -513,6 +517,7 @@ subdirs := \
 	frameworks/av/media/libmedia \
 	frameworks/av/media/libmedia_native \
 	frameworks/av/media/libmediaplayerservice \
+	frameworks/av/media/libnbaio \
 	frameworks/av/media/libstagefright \
 	frameworks/av/media/mediaserver \
 	frameworks/av/services/audioflinger \
@@ -541,6 +546,7 @@ subdirs := \
 	system/core \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
+	system/media/camera \
 	system/su \
 	vendor/cm
 
