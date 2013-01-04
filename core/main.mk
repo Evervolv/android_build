@@ -541,28 +541,22 @@ subdirs := \
 	hardware/invensense/mlsdk \
 	hardware/libhardware \
 	hardware/libhardware_legacy \
+	hardware/qcom \
 	hardware/ril \
 	hardware/ti \
 	system/core \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
 	system/media/camera \
-	system/su \
-	vendor/cm
+	system/su 
 
-# tf101
-ifeq ($(TARGET_PRODUCT), cm_tf101)
+# device and vendor
 subdirs += \
-	device/asus \
-	vendor/asus
-else #tf101
-# maguro
-ifeq ($(TARGET_PRODUCT), cm_maguro)
-subdirs += \
+	device/lge \
 	device/samsung \
+	vendor/cm \
+	vendor/lge \
 	vendor/samsung
-endif
-endif
 
 # Canonical et. al.
 subdirs += \
