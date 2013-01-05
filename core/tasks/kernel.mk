@@ -19,6 +19,13 @@ KERNEL_TOOLCHAIN_ROOT:=$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)/a
 KERNEL_TOOLCHAIN_PREFIX:=$(KERNEL_TOOLCHAIN_ROOT)/bin/arm-eabi-
 endif
 
+# Allow building kernel with different -mtune/cpu options
+ifneq "" "$(strip $(TARGET_EXTRA_CFLAGS))"
+  ifeq "" "$(strip $(KERNEL_CFLAGS))"
+    KERNEL_CFLAGS := $(TARGET_EXTRA_CFLAGS)
+  endif
+endif
+
 ifeq ($(BOARD_USES_UBOOT),true)
 	TARGET_PREBUILT_INT_KERNEL := $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/uImage
 	TARGET_PREBUILT_INT_KERNEL_TYPE := uImage
@@ -123,7 +130,7 @@ endif
 
 ifeq ($(TARGET_ARCH),arm)
     ARM_CROSS_COMPILE:=CROSS_COMPILE="$(KERNEL_TOOLCHAIN_PREFIX)"
-    ARM_KCFLAGS:=KCFLAGS="$(TARGET_EXTRA_CFLAGS) $(KERNEL_CFLAGS)"
+    ARM_KCFLAGS:=KCFLAGS="$(KERNEL_CFLAGS)"
 endif
 
 ifeq ($(TARGET_KERNEL_MODULES),)
