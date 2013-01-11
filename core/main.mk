@@ -532,18 +532,12 @@ subdirs := \
 	frameworks/native/opengl \
 	frameworks/native/services \
 	frameworks/opt/emoji \
-	hardware/broadcom \
-	hardware/broadcom/wlan/bcmdhd \
-	hardware/invensense \
-	hardware/libhardware \
-	hardware/libhardware_legacy \
-	hardware/qcom \
-	hardware/ril \
-	hardware/ti \
+	hardware \
 	system/core \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
 	system/media/camera \
+	system/security/keystore \
 	system/su 
 
 # device and vendor
