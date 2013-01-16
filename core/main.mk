@@ -520,10 +520,12 @@ subdirs := \
 	frameworks/av/services/audioflinger \
 	frameworks/av/services/camera/libcameraservice \
 	frameworks/base/cmds/bootanimation \
+	frameworks/base/cmds/installd \
 	frameworks/base/cmds/sensorservice \
 	frameworks/base/cmds/screencap \
 	frameworks/base/cmds/servicemanager \
 	frameworks/base/libs/androidfw \
+	frameworks/base/libs/diskusage \
 	frameworks/base/media/mediaserver \
 	frameworks/base/services/input \
 	frameworks/base/tools/aapt \
