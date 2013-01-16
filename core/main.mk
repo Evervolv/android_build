@@ -545,9 +545,19 @@ subdirs += \
 	device/asus \
 	device/lge \
 	device/samsung \
+	vendor/asus \
+	vendor/audience \
+	vendor/broadcom \
 	vendor/cm \
+	vendor/elan \
+	vendor/invensense \
 	vendor/lge \
-	vendor/samsung
+	vendor/nvidia \
+	vendor/nxp \
+	vendor/qcom \
+	vendor/samsung \
+	vendor/widevine
+
 
 # Canonical et. al.
 subdirs += \
