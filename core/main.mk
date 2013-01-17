@@ -539,8 +539,13 @@ subdirs := \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
 	system/media/camera \
-	system/security/keystore \
 	system/su 
+
+# Keystore only on manta
+ifeq ($(TARGET_PRODUCT), cm_manta)
+subdirs += \
+	system/security/keystore
+endif
 
 # device and vendor
 subdirs += \
