@@ -129,6 +129,10 @@ PRODUCT_PACKAGES += \
     zoneinfo.idx \
     zoneinfo.version \
     libinput \
+    libcamera_compat_layer \
+    libis_compat_layer \
+    libmedia_compat_layer \
+    libsf_compat_layer \
     libubuntu_application_api \
     ubuntuappmanager \
     ubuntu_chroot \
