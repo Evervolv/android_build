@@ -32,7 +32,8 @@ PRODUCT_PACKAGES += \
     MagicSmokeWallpapers \
     NoiseField \
     PhaseBeam \
-    VisualizationWallpapers
+    VisualizationWallpapers \
+    PhotoTable
 
 # Put en_US first in the list, so make it default.
 PRODUCT_LOCALES := en_US
