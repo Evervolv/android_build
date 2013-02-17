@@ -475,6 +475,7 @@ subdirs := \
 	external/aac \
 	external/bouncycastle \
 	external/bsdiff \
+	external/busybox \
 	external/bzip2 \
 	external/e2fsprogs \
 	external/expat \
@@ -539,7 +540,7 @@ subdirs := \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
 	system/media/camera \
-	system/su 
+	system/su
 
 # Keystore only on manta
 ifeq ($(TARGET_PRODUCT), cm_manta)
@@ -565,11 +566,9 @@ subdirs += \
 	vendor/samsung \
 	vendor/widevine
 
-
-# Canonical et. al.
+# Ubuntu et. al.
 subdirs += \
-	busybox \
-	canonical
+	ubuntu
 
 #else  # !BUILD_TINY_ANDROID
 
