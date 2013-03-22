@@ -537,6 +537,7 @@ subdirs := \
 	frameworks/opt/emoji \
 	hardware \
 	system/core \
+	system/bluetooth \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
 	system/media/camera \
