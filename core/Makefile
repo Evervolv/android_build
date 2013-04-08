@@ -13,9 +13,9 @@ ifneq ($(BUILD_WITH_COLORS),0)
 endif
 
 ifeq ($(NIGHTLY_BUILD),true)
-EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)-Nightly-$(shell date +%Y.%m.%d)-$(TARGET_DEVICE)
+  EV_PREFIX = $(TARGET_PRODUCT)-nightly-$(shell date +%Y.%m.%d)
 else
-EV_PREFIX = Evervolv-$(PRODUCT_CODENAME)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(TARGET_DEVICE)
+  EV_PREFIX = $(TARGET_PRODUCT)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(PRODUCT_CODENAME)
 endif
 
 # HACK: clear LOCAL_PATH from including last build target before calling
@@ -1498,6 +1498,8 @@ ifneq ($(recovery_fstab),)
 # OTA update package
 
 name := $(EV_PREFIX)
+
+name := $(shell echo ${name} | tr [:upper:] [:lower:])
 
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
