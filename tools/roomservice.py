@@ -111,6 +111,16 @@ def get_from_manifest(devicename):
     return None
 
 def is_in_manifest(projectname):
+    try:
+        mm = ElementTree.parse(".repo/manifest.xml")
+        mm = mm.getroot()
+    except:
+        mm = ElementTree.Element("manifest")
+
+    for localpath in mm.findall("project"):
+        if localpath.get("name") == projectname:
+            return 1
+
     for manifest in local_manifests:
         try:
             lm = ElementTree.parse(os.path.join(local_manifests_dir, manifest))
