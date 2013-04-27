@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 
 product = sys.argv[1];
 local_manifests_dir = ".repo/local_manifests"
-default_revison = "jellybean"
+default_revison = "jellybean-ubuntuphone"
 repositories = []
 local_manifests = []
 
