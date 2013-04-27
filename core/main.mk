@@ -500,6 +500,7 @@ subdirs := \
 	external/speex \
 	external/sqlite \
 	external/stlport \
+	externel/su \
 	external/tinyalsa \
 	external/tremolo \
 	external/webp \
@@ -541,11 +542,10 @@ subdirs := \
 	system/bluetooth \
 	system/extras/ext4_utils \
 	system/media/audio_utils \
-	system/media/camera \
-	system/su
+	system/media/camera
 
 # Keystore only on manta
-ifeq ($(TARGET_PRODUCT), cm_manta)
+ifeq ($(TARGET_PRODUCT), ev_manta)
 subdirs += \
 	system/security/keystore
 endif
@@ -553,6 +553,7 @@ endif
 # device and vendor
 subdirs += \
 	device/asus \
+	device/htc \
 	device/lge \
 	device/samsung \
 	vendor/asus \
@@ -562,6 +563,7 @@ subdirs += \
 	vendor/elan \
 	vendor/invensense \
 	vendor/lge \
+	vendor/htc \
 	vendor/nvidia \
 	vendor/nxp \
 	vendor/qcom \
