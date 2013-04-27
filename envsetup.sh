@@ -510,6 +510,9 @@ function lunch()
         product=
     fi
 
+    # Pull / update not git projects
+    build/tools/fetch_bzr_repos.py
+
     local variant=$(echo -n $selection | sed -e "s/^[^\-]*-//")
     check_variant $variant
     if [ $? -ne 0 ]
