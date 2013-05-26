@@ -598,8 +598,8 @@ function lunch()
         then
             selection=${LUNCH_MENU_CHOICES[$(($answer-1))]}
         fi
-    else
-        selection=$answer
+    else #It is likely just the board name, assemble the combo for us
+        selection=ev_${answer}-eng
     fi
 
     export TARGET_BUILD_APPS=
