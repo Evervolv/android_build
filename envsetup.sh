@@ -737,8 +737,18 @@ function lunch()
                 selection=${choices[$(($answer-1))]}
             fi
         fi
+    elif (echo -n $answer | (! grep -q -e "ev_"))
+    then
+        selection=ev_${answer}
     else
-        selection=$answer
+        selection=${answer}
+    fi
+
+    # It is likely just the board name, assemble the combo for us
+    if (echo -n $selection | (! grep -q -e "-"))
+    then
+        local selection_default=${selection}-userdebug
+        selection=${selection_default}
     fi
 
     export TARGET_BUILD_APPS=
