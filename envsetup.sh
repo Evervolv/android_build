@@ -579,6 +579,8 @@ function lunch()
     elif (echo -n $answer | grep -q -e "^[^\-][^\-]*-[^\-][^\-]*$")
     then
         selection=$answer
+    else #It is likely just the board name, assemble the combo for us
+        selection=ev_${answer}-eng
     fi
 
     if [ -z "$selection" ]
