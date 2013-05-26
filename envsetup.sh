@@ -804,7 +804,18 @@ function lunch()
             fi
         fi
     else
-        selection=$answer
+        # It is likely just the board name, assemble the combo for us
+        if [[ "$selection" =~ -(user|userdebug|eng)$ ]]
+        then
+            selection=$answer
+        else
+            if (echo -n $answer | grep -q -e "ev_")
+            then
+                selection=$answer-userdebug
+            else
+                selection=ev_$answer-userdebug
+            fi
+        fi
     fi
 
     export TARGET_BUILD_APPS=
