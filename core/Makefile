@@ -11,12 +11,6 @@ ifneq ($(BUILD_WITH_COLORS),0)
   CL_RST="\033[0m"
 endif
 
-ifeq ($(NIGHTLY_BUILD),true)
-  EV_PREFIX = $(TARGET_PRODUCT)-nightly-$(shell date +%Y.%m.%d)
-else
-  EV_PREFIX = $(TARGET_PRODUCT)-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR).$(PRODUCT_VERSION_MAINTENANCE)$(PRODUCT_VERSION_DEVICE_SPECIFIC)-$(PRODUCT_CODENAME)
-endif
-
 # Pick a reasonable string to use to identify files.
 ifneq "" "$(filter eng.%,$(BUILD_NUMBER))"
   # BUILD_NUMBER has a timestamp in it, which means that
@@ -1273,9 +1267,7 @@ ifneq ($(recovery_fstab),)
 # -----------------------------------------------------------------
 # OTA update package
 
-name := $(EV_PREFIX)
-
-name := $(shell echo ${name} | tr [:upper:] [:lower:])
+name := $(ROM_VERSION)
 
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
@@ -1342,9 +1334,7 @@ updatepackage: $(INTERNAL_UPDATE_PACKAGE_TARGET)
 # -----------------------------------------------------------------
 # The basic update package (just system and boot)
 
-name := $(EV_PREFIX)
-# distinguish from otapackages
-name := $(name)-fastboot-update
+name := $(ROM_VERSION)-fastboot-update
 
 INTERNAL_SYSTEM_UPDATE_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
