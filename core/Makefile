@@ -1,5 +1,20 @@
 # Put some miscellaneous rules here
 
+<<<<<<< HEAD
+=======
+# Build system colors
+
+ifneq ($(BUILD_WITH_COLORS),0)
+  CL_RED="\033[31m"
+  CL_GRN="\033[32m"
+  CL_YLW="\033[33m"
+  CL_BLU="\033[34m"
+  CL_MAG="\033[35m"
+  CL_CYN="\033[36m"
+  CL_RST="\033[0m"
+endif
+
+>>>>>>> e2e3be0... build: use ROM_VERSION to name the zips
 # HACK: clear LOCAL_PATH from including last build target before calling
 # intermedites-dir-for
 LOCAL_PATH := $(BUILD_SYSTEM)
@@ -1544,11 +1559,16 @@ ifneq ($(recovery_fstab),)
 # -----------------------------------------------------------------
 # OTA update package
 
-name := $(TARGET_PRODUCT)
-ifeq ($(TARGET_BUILD_TYPE),debug)
-  name := $(name)_debug
+ifeq ($(EV_BUILD),)
+  name := $(TARGET_PRODUCT)
+
+  ifeq ($(TARGET_BUILD_TYPE),debug)
+    name := $(name)_debug
+  endif
+  name := $(name)-ota-$(FILE_NAME_TAG)
+else
+  name := $(ROM_VERSION)
 endif
-name := $(name)-ota-$(FILE_NAME_TAG)
 
 INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
