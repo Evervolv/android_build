@@ -27,6 +27,9 @@ Usage:  img_from_target_files [flags] input_target_files output_image_zip
       Include only the bootable images (eg 'boot' and 'recovery') in
       the output.
 
+  --system_zip
+      Include only boot and system images in output.
+
 """
 
 import sys
@@ -204,12 +207,15 @@ def CopyInfo(output_zip):
 
 def main(argv):
   bootable_only = [False]
+  system_only = [False]
 
   def option_handler(o, a):
     if o in ("-b", "--board_config"):
       pass       # deprecated
     if o in ("-z", "--bootable_zip"):
       bootable_only[0] = True
+    elif o in ("--system_zip"):
+      system_only[0] = True
     else:
       return False
     return True
@@ -217,10 +223,12 @@ def main(argv):
   args = common.ParseOptions(argv, __doc__,
                              extra_opts="b:z",
                              extra_long_opts=["board_config=",
-                                              "bootable_zip"],
+                                              "bootable_zip",
+                                              "system_zip"],
                              extra_option_handler=option_handler)
 
   bootable_only = bootable_only[0]
+  system_only = system_only[0]
 
   if len(args) != 2:
     common.Usage(__doc__)
@@ -241,11 +249,16 @@ def main(argv):
 
   common.GetBootableImage(
       "boot.img", "boot.img", OPTIONS.input_tmp, "BOOT").AddToZip(output_zip)
-  common.GetBootableImage(
-      "recovery.img", "recovery.img", OPTIONS.input_tmp,
-      "RECOVERY").AddToZip(output_zip)
 
-  if not bootable_only:
+  if not system_only:
+    common.GetBootableImage(
+        "recovery.img", "recovery.img", OPTIONS.input_tmp,
+        "RECOVERY").AddToZip(output_zip)
+
+  if system_only:
+    AddSystem(output_zip)
+    CopyInfo(output_zip)
+  elif not bootable_only:
     AddSystem(output_zip)
     AddVendor(output_zip)
     AddUserdata(output_zip)

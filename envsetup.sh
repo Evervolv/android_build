@@ -57,6 +57,14 @@ function check_product()
         echo "Couldn't locate the top of the tree.  Try setting TOP." >&2
         return
     fi
+
+    if (echo -n $1 | grep -q -e "^ev_") ; then
+        EV_BUILD=$(echo -n $1 | sed -e 's/^ev_//g')
+    else
+        EV_BUILD=
+    fi
+    export EV_BUILD
+
     CALLED_FROM_SETUP=true BUILD_SYSTEM=build/core \
         TARGET_PRODUCT=$1 \
         TARGET_BUILD_VARIANT= \
@@ -476,6 +484,8 @@ function lunch()
     elif (echo -n $answer | grep -q -e "^[^\-][^\-]*-[^\-][^\-]*$")
     then
         selection=$answer
+    else #It is likely just the board name, assemble the combo for us
+        selection=ev_${answer}-eng
     fi
 
     if [ -z "$selection" ]
@@ -489,6 +499,17 @@ function lunch()
 
     local product=$(echo -n $selection | sed -e "s/-.*$//")
     check_product $product
+    if [ $? -ne 0 ]
+    then
+        # if we can't find a product, try to grab it off the Evervolv github
+        T=$(gettop)
+        pushd $T > /dev/null
+        build/tools/roomservice.py $product
+        popd > /dev/null
+        check_product $product
+    else
+        build/tools/roomservice.py $product true
+    fi
     if [ $? -ne 0 ]
     then
         echo
@@ -535,6 +556,26 @@ function _lunch()
     return 0
 }
 complete -F _lunch lunch
+
+function find_deps() {
+
+    if [ -z "$TARGET_PRODUCT" ]
+    then
+        echo "TARGET_PRODUCT not set..."
+        lunch
+    fi
+
+    build/tools/roomservice.py $TARGET_PRODUCT true
+    if [ $? -ne 0 ]
+    then
+        echo "find_deps failed."
+    fi
+}
+
+function breakfast()
+{
+    lunch $@
+}
 
 # Configures the build to build unbundled apps.
 # Run tapas with one ore more app names (from LOCAL_PACKAGE_NAME)
@@ -1232,6 +1273,49 @@ function godir () {
     \cd $T/$pathname
 }
 
+function cleantree () {
+    read -p "Are you sure you want to erase local changes? (y|N)" ans
+    test "$ans" = "Y" || test "$ans" = "y" || return
+    if [ ! "$ANDROID_BUILD_TOP" ]; then
+        export ANDROID_BUILD_TOP=$(gettop)
+    fi
+    if [ "$(pwd)" != "$ANDROID_BUILD_TOP" ]; then
+        cd "$ANDROID_BUILD_TOP"
+    fi
+    echo "Cleaning tree...This will take a few minutes"
+    repo forall -c git reset --hard >/dev/null 2>&1
+    repo forall -c git clean -fd >/dev/null 2>&1
+    repo sync -fd >/dev/null 2>&1
+    echo "Done"
+}
+
+function aospremote() {
+    git remote rm aosp 2> /dev/null
+    if [ ! -d .git ]
+    then
+        echo .git directory not found. Please run this from the root directory of the Android repository you wish to set up.
+    fi
+    if [ ! "$ANDROID_BUILD_TOP" ]; then
+        export ANDROID_BUILD_TOP=$(gettop)
+    fi
+    PROJECT=`pwd | sed s#$ANDROID_BUILD_TOP/##g`
+    if (echo $PROJECT | grep -qv "^device")
+    then
+        PFX="platform/"
+    fi
+    git remote add aosp https://android.googlesource.com/$PFX$PROJECT
+    echo "Remote 'aosp' created"
+}
+
+function repodiff() {
+    if [ -z "$*" ]; then
+        echo "Usage: repodiff <ref-from> [[ref-to] [--numstat]]"
+        return
+    fi
+    diffopts=$* repo forall -c \
+      'echo "$REPO_PATH ($REPO_REMOTE)"; git diff ${diffopts} 2>/dev/null ;'
+}
+
 # Force JAVA_HOME to point to java 1.6 if it isn't already set
 function set_java_home() {
     if [ ! "$JAVA_HOME" ]; then
@@ -1270,7 +1354,7 @@ if [ "x$SHELL" != "x/bin/bash" ]; then
 fi
 
 # Execute the contents of any vendorsetup.sh files we can find.
-for f in `/bin/ls vendor/*/vendorsetup.sh vendor/*/*/vendorsetup.sh device/*/*/vendorsetup.sh 2> /dev/null`
+for f in `/bin/ls vendor/*/vendorsetup.sh vendor/*/*/vendorsetup.sh 2> /dev/null`
 do
     echo "including $f"
     . $f
