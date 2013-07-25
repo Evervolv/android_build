@@ -59,7 +59,7 @@ $(combo_target)STATIC_LIB_SUFFIX := .a
 # Now include the combo for this specific target.
 include $(BUILD_COMBOS)/$(combo_target)$(combo_os_arch).mk
 
-ifneq ($(USE_CCACHE),)
+ifneq (,$(filter true 1,$(USE_CCACHE)))
   # The default check uses size and modification time, causing false misses
   # since the mtime depends when the repo was checked out
   export CCACHE_COMPILERCHECK := content
