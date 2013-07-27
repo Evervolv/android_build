@@ -182,6 +182,8 @@ installclean_files := \
 	$(PRODUCT_OUT)/*.txt \
 	$(PRODUCT_OUT)/*.xlb \
 	$(PRODUCT_OUT)/*.zip \
+	$(PRODUCT_OUT)/*.log \
+	$(PRODUCT_OUT)/*.md5sum \
 	$(PRODUCT_OUT)/data \
 	$(PRODUCT_OUT)/obj/APPS \
 	$(PRODUCT_OUT)/obj/NOTICE_FILES \
@@ -189,6 +191,7 @@ installclean_files := \
 	$(PRODUCT_OUT)/recovery \
 	$(PRODUCT_OUT)/root \
 	$(PRODUCT_OUT)/kernel \
+	$(PRODUCT_OUT)/obj/KERNEL_OBJ \
 	$(PRODUCT_OUT)/system \
 	$(PRODUCT_OUT)/dex_bootjars \
 	$(PRODUCT_OUT)/obj/JAVA_LIBRARIES \
