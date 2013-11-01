@@ -24,27 +24,30 @@ PRODUCT_PACKAGES := \
     Bluetooth \
     Calculator \
     Calendar \
+    Camera2 \
     CertInstaller \
-    DrmProvider \
     Email \
     Exchange2 \
     FusedLocation \
     Gallery2 \
     InputDevices \
+    Keyguard \
     LatinIME \
     Launcher2 \
     Music \
     MusicFX \
     OneTimeInitializer \
+    PrintSpooler \
     Provision \
-    Phone \
     QuickSearchBox \
     Settings \
     SystemUI \
+    TeleService \
     CalendarProvider \
     bluetooth-health \
     hostapd \
-    wpa_supplicant.conf
+    wpa_supplicant.conf \
+    WallpaperCropper
 
 PRODUCT_PACKAGES += \
     audio \
@@ -56,9 +59,6 @@ PRODUCT_PACKAGES += \
     pppd \
     sdptool \
     wpa_supplicant
-
-PRODUCT_PACKAGES += \
-    icu.dat
 
 PRODUCT_PACKAGES += \
     librs_jni \
@@ -86,6 +86,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 $(call inherit-product-if-exists, frameworks/base/data/fonts/fonts.mk)
 $(call inherit-product-if-exists, external/noto-fonts/fonts.mk)
 $(call inherit-product-if-exists, external/naver-fonts/fonts.mk)
+$(call inherit-product-if-exists, external/sil-fonts/fonts.mk)
 $(call inherit-product-if-exists, frameworks/base/data/keyboards/keyboards.mk)
 $(call inherit-product-if-exists, frameworks/webview/chromium/chromium.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core.mk)
