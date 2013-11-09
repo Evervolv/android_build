@@ -96,6 +96,9 @@ SRC_API_DIR := $(TOPDIR)prebuilts/sdk/api
 SRC_SYSTEM_API_DIR := $(TOPDIR)prebuilts/sdk/system-api
 SRC_TEST_API_DIR := $(TOPDIR)prebuilts/sdk/test-api
 
+# Evervolv
+SRC_EVERVOLV_DIR := $(TOPDIR)vendor/ev
+
 # Some specific paths to tools
 SRC_DROIDDOC_DIR := $(TOPDIR)build/make/tools/droiddoc
 
@@ -925,6 +928,9 @@ PLATFORM_SEPOLICY_COMPAT_VERSIONS := \
     PLATFORM_SEPOLICY_COMPAT_VERSIONS \
     PLATFORM_SEPOLICY_VERSION \
     TOT_SEPOLICY_VERSION \
+
+# Rules for Evervolv targets
+include $(SRC_EVERVOLV_DIR)/build/core/config.mk
 
 # ###############################################################
 # Set up final options.
