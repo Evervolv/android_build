@@ -45,6 +45,9 @@ SRC_SERVERS:= $(TOPDIR)servers
 SRC_TARGET_DIR := $(TOPDIR)build/target
 SRC_API_DIR := $(TOPDIR)prebuilts/sdk/api
 
+# Evervolv
+SRC_EVERVOLV_DIR := $(TOPDIR)vendor/ev
+
 # Some specific paths to tools
 SRC_DROIDDOC_DIR := $(TOPDIR)build/tools/droiddoc
 
