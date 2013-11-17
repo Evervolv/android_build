@@ -1801,6 +1801,51 @@ function repodiff() {
       'echo "$REPO_PATH ($REPO_REMOTE)"; git diff ${diffopts} 2>/dev/null ;'
 }
 
+function repolog() {
+	local usage=$(cat <<-EOF
+	usage: repolog branch branch [opts]
+	    opts:
+	        -r|--reverse     : reverse log
+	        --full           : omit --oneline
+	        -g|--github      : only show github projects
+	examples:
+	        repolog github/kitkat HEAD --full
+	        repolog android-4.4_r1 android-4.4_r1.1 -r -g
+
+	EOF
+	)
+	local gitopts="--oneline"
+	local github=0
+	if [ $# -lt 2 ]; then
+		echo "$usage"
+		return 1
+	fi
+	local branch1=$1; shift;
+	local branch2=$1; shift;
+	while [ $# -gt 0 ]; do
+		case $1 in
+			-r|--reverse)
+				gitopts+=" --reverse";;
+			--full)
+				gitopts=${gitopts/--oneline/};;
+			-g|--github)
+				github=1;;
+			-h|--help)
+				echo "$usage"; return 1;;
+		esac
+		shift
+	done
+	if [ "${branch1#github}" != "$branch1" ] || \
+		[ "${branch2#github}" != "$branch2" ]; then
+	       github=1
+	fi
+	if [ $github -eq 1 ]; then
+		gopt=$gitopts br1=$branch1 br2=$branch2 repo forall -pvc 'if [ "$(git config --get remote.github.url)" ]; then git log ${gopt} ${br1}..${br2}; fi;'
+	else
+		gopt=$gitopts br1=$branch1 br2=$branch2 repo forall -pvc 'git log ${gopt} ${br1}..${br2}'
+	fi
+}
+
 # Force JAVA_HOME to point to java 1.7/1.8 if it isn't already set.
 function set_java_home() {
     # Clear the existing JAVA_HOME value if we set it ourselves, so that
