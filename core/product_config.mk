@@ -174,7 +174,7 @@ all_product_configs := $(call get-product-makefiles,\
     $(SRC_TARGET_DIR)/product/AndroidProducts.mk)
 else
   ifneq ($(EV_BUILD),)
-    $(call import-products, device/*/$(EV_BUILD)/ev.mk)
+    all_product_configs := $(shell ls device/*/$(EV_BUILD)/ev.mk)
   else
     # Read in all of the product definitions specified by the AndroidProducts.mk
     # files in the tree.
@@ -182,6 +182,7 @@ else
   endif
 endif
 
+ifeq ($(EV_BUILD),)
 all_named_products :=
 
 # Find the product config makefile for the current product.
@@ -207,6 +208,10 @@ $(foreach f, $(all_product_configs),\
 _cpm_words :=
 _cpm_word1 :=
 _cpm_word2 :=
+else
+    current_product_makefile := $(strip $(all_product_configs))
+    all_product_makefiles := $(strip $(all_product_configs))
+endif
 current_product_makefile := $(strip $(current_product_makefile))
 all_product_makefiles := $(strip $(all_product_makefiles))
 
