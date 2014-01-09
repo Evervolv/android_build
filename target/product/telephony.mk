@@ -21,6 +21,7 @@ PRODUCT_PACKAGES := \
     CarrierConfig \
     Dialer \
     CallLogBackup \
+    InCallUI \
     rild
 
 PRODUCT_COPY_FILES := \
