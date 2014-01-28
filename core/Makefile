@@ -306,6 +306,7 @@ endif
 			TARGET_CPU_ABI="$(TARGET_CPU_ABI)" \
 			TARGET_CPU_ABI2="$(TARGET_CPU_ABI2)" \
 			TARGET_AAPT_CHARACTERISTICS="$(TARGET_AAPT_CHARACTERISTICS)" \
+			TARGET_UNIFIED_DEVICE="$(TARGET_UNIFIED_DEVICE)" \
 			$(PRODUCT_BUILD_PROP_OVERRIDES) \
 	        bash $(BUILDINFO_SH) >> $@
 ifndef property_overrides_split_enabled
@@ -2763,6 +2764,13 @@ else
     $(INTERNAL_OTA_PACKAGE_TARGET): override_device := $(TARGET_OTA_ASSERT_DEVICE)
 endif
 
+ifneq ($(TARGET_UNIFIED_DEVICE),)
+    $(INTERNAL_OTA_PACKAGE_TARGET): override_prop := --override_prop=true
+    ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
+        $(INTERNAL_OTA_PACKAGE_TARGET): override_device := $(TARGET_DEVICE)
+    endif
+endif
+
 $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) \
 		$(OTA_FROM_TARGET_SCRIPT)
 	@echo "$(OTA_FROM_TARGET_SCRIPT)" > $(PRODUCT_OUT)/ota_script_path
@@ -2775,7 +2783,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
 	   --motd $(PRODUCT_MOTD) \
-	   --override_device=$(override_device) \
+	   --override_device=$(override_device) $(override_prop) \
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 ifneq ($(TARGET_CUSTOM_RELEASETOOL),)

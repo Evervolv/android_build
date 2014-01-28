@@ -141,6 +141,10 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
   --override_device <device>
       Override device-specific asserts. Can be a comma-separated list.
 
+  --override_prop <boolean>
+      Override build.prop items with custom vendor init.
+      Enabled when TARGET_UNIFIED_DEVICE is defined in BoardConfig
+
 """
 
 from __future__ import print_function
@@ -196,6 +200,7 @@ OPTIONS.key_passwords = []
 OPTIONS.motd = None
 OPTIONS.motdLim = 48
 OPTIONS.override_device = 'auto'
+OPTIONS.override_prop = False
 
 METADATA_NAME = 'META-INF/com/android/metadata'
 UNZIP_PATTERN = ['IMAGES/*', 'META/*']
@@ -399,15 +404,20 @@ def WriteFullOTAPackage(input_zip, output_zip):
   if oem_props:
     oem_dicts = _LoadOemDicts(script, recovery_mount_options)
 
-  target_fp = CalculateFingerprint(oem_props, oem_dicts and oem_dicts[0],
+  if OPTIONS.override_prop:
+    metadata = {
+        "post-timestamp": GetBuildProp("ro.build.date.utc", OPTIONS.info_dict),
+    }
+  else:
+    target_fp = CalculateFingerprint(oem_props, oem_dicts and oem_dicts[0],
                                    OPTIONS.info_dict)
-  metadata = {
-      "post-build": target_fp,
-      "pre-device": GetOemProperty("ro.product.device", oem_props,
-                                   oem_dicts and oem_dicts[0],
-                                   OPTIONS.info_dict),
-      "post-timestamp": GetBuildProp("ro.build.date.utc", OPTIONS.info_dict),
-  }
+    metadata = {
+        "post-build": target_fp,
+        "pre-device": GetOemProperty("ro.product.device", oem_props,
+                                     oem_dicts and oem_dicts[0],
+                                     OPTIONS.info_dict),
+        "post-timestamp": GetBuildProp("ro.build.date.utc", OPTIONS.info_dict),
+    }
 
   device_specific = common.DeviceSpecificParams(
       input_zip=input_zip,
@@ -476,7 +486,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.Comment("Stage 3/3")
 
   # Dump fingerprints
-  script.Print("Target: %s" % target_fp)
+  if OPTIONS.override_prop:
+    script.Print("Target: %s" % target_fp)
 
   device_specific.FullOTA_InstallBegin()
 
@@ -643,12 +654,17 @@ def WriteBlockIncrementalOTAPackage(target_zip, source_zip, output_zip):
   if source_oem_props and target_oem_props:
     oem_dicts = _LoadOemDicts(script, recovery_mount_options)
 
-  metadata = {
-      "pre-device": GetOemProperty("ro.product.device", source_oem_props,
-                                   oem_dicts and oem_dicts[0],
-                                   OPTIONS.source_info_dict),
-      "ota-type": "BLOCK",
-  }
+  if OPTIONS.override_prop:
+    metadata = {
+        "ota-type": "BLOCK",
+    }
+  else:
+    metadata = {
+        "pre-device": GetOemProperty("ro.product.device", source_oem_props,
+                                     oem_dicts and oem_dicts[0],
+                                     OPTIONS.source_info_dict),
+        "ota-type": "BLOCK",
+    }
 
   HandleDowngradeMetadata(metadata)
 
@@ -662,16 +678,17 @@ def WriteBlockIncrementalOTAPackage(target_zip, source_zip, output_zip):
       metadata=metadata,
       info_dict=OPTIONS.source_info_dict)
 
-  source_fp = CalculateFingerprint(source_oem_props, oem_dicts and oem_dicts[0],
-                                   OPTIONS.source_info_dict)
-  target_fp = CalculateFingerprint(target_oem_props, oem_dicts and oem_dicts[0],
-                                   OPTIONS.target_info_dict)
-  metadata["pre-build"] = source_fp
-  metadata["post-build"] = target_fp
-  metadata["pre-build-incremental"] = GetBuildProp(
-      "ro.build.version.incremental", OPTIONS.source_info_dict)
-  metadata["post-build-incremental"] = GetBuildProp(
-      "ro.build.version.incremental", OPTIONS.target_info_dict)
+  if not OPTIONS.override_prop:
+    source_fp = CalculateFingerprint(source_oem_props, oem_dicts and oem_dicts[0],
+                                     OPTIONS.source_info_dict)
+    target_fp = CalculateFingerprint(target_oem_props, oem_dicts and oem_dicts[0],
+                                     OPTIONS.target_info_dict)
+    metadata["pre-build"] = source_fp
+    metadata["post-build"] = target_fp
+    metadata["pre-build-incremental"] = GetBuildProp(
+        "ro.build.version.incremental", OPTIONS.source_info_dict)
+    metadata["post-build-incremental"] = GetBuildProp(
+        "ro.build.version.incremental", OPTIONS.target_info_dict)
 
   source_boot = common.GetBootableImage(
       "/tmp/boot.img", "boot.img", OPTIONS.source_tmp, "BOOT",
@@ -1296,7 +1313,6 @@ def WriteABOTAPackageWithBrilloScript(target_file, output_file,
       "Mismatching streaming metadata: %s vs %s." % (actual, expected)
   common.ZipClose(output_zip)
 
-
 def main(argv):
 
   def option_handler(o, a):
@@ -1363,6 +1379,8 @@ def main(argv):
       OPTIONS.motdLim = a
     elif o in ("--override_device"):
       OPTIONS.override_device = a
+    elif o in ("--override_prop"):
+      OPTIONS.override_prop = bool(a.lower() == 'true')
     else:
       return False
     return True
@@ -1397,6 +1415,7 @@ def main(argv):
                                  "motd=",
                                  "motd-limit=",
                                  "override_device=",
+                                 "override_prop=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:
