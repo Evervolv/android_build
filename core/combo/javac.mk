@@ -9,18 +9,18 @@
 #
 
 ifeq ($(EXPERIMENTAL_USE_JAVA7),)
-common_flags := -target 1.5 -Xmaxerrs 9999999
+common_jdk_flags := -target 1.5 -Xmaxerrs 9999999
 else
-common_flags := -source 1.7 -target 1.7 -Xmaxerrs 9999999
+common_jdk_flags := -source 1.7 -target 1.7 -Xmaxerrs 9999999
 endif
 
 
 # Whatever compiler is on this system.
 ifeq ($(BUILD_OS), windows)
     COMMON_JAVAC := development/host/windows/prebuilt/javawrap.exe -J-Xmx256m \
-        $(common_flags)
+        $(common_jdk_flags)
 else
-    COMMON_JAVAC := javac -J-Xmx512M $(common_flags)
+    COMMON_JAVAC := javac -J-Xmx512M $(common_jdk_flags)
 endif
 
 # Eclipse.
