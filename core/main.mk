@@ -145,7 +145,7 @@ endif
 requires_openjdk := false
 ifneq ($(EXPERIMENTAL_USE_JAVA7),)
 ifeq ($(HOST_OS), linux)
-requires_openjdk := true
+requires_openjdk := false
 endif
 endif
 
