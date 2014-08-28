@@ -148,6 +148,14 @@ class EdifyGenerator(object):
            ");")
     self.script.append(self.WordWrap(cmd))
 
+  def AssertSomeBaseband(self, *basebands):
+    """Assert that the baseband version is one of *basebands."""
+    cmd = ("assert(" +
+           " || ".join(['getprop("ro.baseband") == "%s"' % (b,)
+                         for b in basebands]) +
+           ");")
+    self.script.append(self._WordWrap(cmd))
+
   def ShowProgress(self, frac, dur):
     """Update the progress bar, advancing it over 'frac' over the next
     'dur' seconds.  'dur' may be zero to advance it via SetProgress
