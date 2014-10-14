@@ -179,13 +179,13 @@ include $(BUILD_SYSTEM)/node_fns.mk
 include $(BUILD_SYSTEM)/product.mk
 include $(BUILD_SYSTEM)/device.mk
 
-ifneq ($(strip $(TARGET_BUILD_APPS)),)
-# An unbundled app build needs only the core product makefiles.
-all_product_configs := $(call get-product-makefiles,\
-    $(SRC_TARGET_DIR)/product/AndroidProducts.mk)
+ifneq ($(EV_BUILD),)
+  all_product_configs := $(shell ls device/*/$(EV_BUILD)/ev.mk)
 else
-  ifneq ($(EV_BUILD),)
-    all_product_configs := $(shell ls device/*/$(EV_BUILD)/ev.mk)
+  ifneq ($(strip $(TARGET_BUILD_APPS)),)
+    # An unbundled app build needs only the core product makefiles.
+    all_product_configs := $(call get-product-makefiles,\
+      $(SRC_TARGET_DIR)/product/AndroidProducts.mk)
   else
     # Read in all of the product definitions specified by the AndroidProducts.mk
     # files in the tree.
