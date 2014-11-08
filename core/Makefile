@@ -1497,6 +1497,12 @@ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
 
+ifneq ($(EV_BUILD),)
+    $(INTERNAL_OTA_PACKAGE_TARGET): blockmode := false
+else
+    $(INTERNAL_OTA_PACKAGE_TARGET): blockmode := true
+endif
+
 ifeq ($(TARGET_OTA_ASSERT_DEVICE),)
     $(INTERNAL_OTA_PACKAGE_TARGET): override_device := auto
 else
@@ -1507,7 +1513,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo -e ${CL_YLW}"Package OTA:"${CL_RST}" $@"
 	$(hide) MKBOOTIMG=$(MKBOOTIMG) \
 	   ./build/tools/releasetools/ota_from_target_files -v \
-	   --block \
+	   --block=$(blockmode) \
 	   -p $(HOST_OUT) \
 	   -k $(KEY_CERT_PAIR) \
            --motd $(PRODUCT_MOTD) \
