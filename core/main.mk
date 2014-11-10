@@ -46,7 +46,6 @@ $(warning *  You are using version $(MAKE_VERSION) of make.)
 $(warning *  Android can only be built by versions 3.81 and higher.)
 $(warning *  see https://source.android.com/source/download.html)
 $(warning ********************************************************************************)
-$(error stopping)
 endif
 endif
 
