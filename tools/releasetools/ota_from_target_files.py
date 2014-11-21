@@ -92,6 +92,10 @@ Common options that apply to both of non-A/B and A/B OTAs
       Limit the MOTD to x characters per line
       Default 48
 
+  --backup <boolean>
+      Enable or disable the execution of backuptool.sh.
+      Disabled by default.
+
 Non-A/B OTA specific options
 
   -b  (--binary) <file>
@@ -275,6 +279,7 @@ OPTIONS.force_non_ab = False
 OPTIONS.boot_variable_file = None
 OPTIONS.motd = None
 OPTIONS.motdLim = 48
+OPTIONS.backuptool = False
 
 
 METADATA_NAME = 'META-INF/com/android/metadata'
@@ -854,6 +859,14 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.SetPermissionsRecursive("/tmp/install", 0, 0, 0o755, 0o644, None, None)
   script.SetPermissionsRecursive("/tmp/install/bin", 0, 0, 0o755, 0o755, None, None)
 
+  if target_info.get("system_root_image") == "true":
+    sysmount = "/"
+  else:
+    sysmount = "/system"
+
+  if OPTIONS.backuptool:
+    script.RunBackup("backup", sysmount)
+
   # All other partitions as well as the data wipe use 10% of the progress, and
   # the update of the system partition takes the remaining progress.
   system_progress = 0.9 - (len(block_diff_dict) - 1) * 0.1
@@ -886,6 +899,10 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
 
   device_specific.FullOTA_PostValidate()
+
+  if OPTIONS.backuptool:
+    script.ShowProgress(0.02, 10)
+    script.RunBackup("restore", sysmount)
 
   script.WriteRawImage("/boot", "boot.img")
 
@@ -2163,6 +2180,8 @@ def main(argv):
       OPTIONS.motd = a
     elif o == "--motd-limit":
       OPTIONS.motdLim = a
+    elif o in ("--backup"):
+      OPTIONS.backuptool = bool(a.lower() == 'true')
     else:
       return False
     return True
@@ -2203,6 +2222,7 @@ def main(argv):
                                  "boot_variable_file=",
                                  "motd=",
                                  "motd-limit=",
+                                 "backup=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:
