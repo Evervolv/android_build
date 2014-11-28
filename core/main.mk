@@ -686,6 +686,12 @@ ifdef FULL_BUILD
   product_MODULES := $(filter-out $(foreach p, $(product_MODULES), \
       $(PACKAGES.$(p).OVERRIDES)), $(product_MODULES))
 
+  # Filter out the removed packages before doing expansion
+  product_MODULES := $(filter-out $(REMOVE_PRODUCT_PACKAGES), $(product_MODULES))
+  ifneq ($(REMOVE_PRODUCT_PACKAGES),)
+    $(warning Packages removed via REMOVE_PRODUCT_PACKAGES: $(REMOVE_PRODUCT_PACKAGES))
+  endif
+
   # Resolve the :32 :64 module name
   modules_32 := $(patsubst %:32,%,$(filter %:32, $(product_MODULES)))
   modules_64 := $(patsubst %:64,%,$(filter %:64, $(product_MODULES)))
