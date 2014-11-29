@@ -23,18 +23,22 @@ endef
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 
     qcom_flags := -DQCOM_HARDWARE
-    qcom_flags += -DQCOM_BSP
-    qcom_flags += -DQTI_BSP
+    ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+        qcom_flags += -DQCOM_BSP
+        qcom_flags += -DQTI_BSP
 
-    TARGET_USES_QCOM_BSP := true
+        TARGET_USES_QCOM_BSP := true
+    endif
     TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 
     # Tell HALs that we're compiling an AOSP build with an in-line kernel
     TARGET_COMPILE_WITH_MSM_KERNEL := true
 
-    ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
-        # Enable legacy graphics functions
-        qcom_flags += -DQCOM_BSP_LEGACY
+    ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+        ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
+            # Enable legacy graphics functions
+            qcom_flags += -DQCOM_BSP_LEGACY
+        endif
     endif
 
     TARGET_GLOBAL_CFLAGS += $(qcom_flags)
@@ -74,9 +78,17 @@ $(call project-set-path,qcom-camera,$(TARGET_DEVICE_DIR)/camera)
 else
 $(call qcom-set-path-variant,CAMERA,camera)
 endif
+ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+$(call project-set-path,qcom-display,hardware/qcom/display-legacy)
+else
 $(call project-set-path,qcom-display,hardware/qcom/display-caf/$(QCOM_HARDWARE_VARIANT))
+endif
 $(call qcom-set-path-variant,GPS,gps)
+ifeq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
+$(call project-set-path,qcom-media,hardware/qcom/media-legacy)
+else
 $(call project-set-path,qcom-media,hardware/qcom/media-caf/$(QCOM_HARDWARE_VARIANT))
+endif
 $(call qcom-set-path-variant,SENSORS,sensors)
 $(call ril-set-path-variant,ril)
 $(call wlan-set-path-variant,wlan-caf)
