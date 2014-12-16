@@ -1059,12 +1059,12 @@ clean:
 	echo -e ${CL_GRN}"Cleaning $$dir..."; \
 	rm -rf $$dir; \
 	done
-	@echo -e ${CL_GRN}"Clean."; \
+	@echo -e ${CL_GRN}"Clean."${CL_RST}; \
 
 .PHONY: clobber
 clobber:
-	@rm -rf $(OUT_DIR)/*
-	@echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}
+	@rm -rf $(OUT_DIR)/*; \
+	@echo -e ${CL_GRN}"Entire build directory removed."${CL_RST}; \
 
 # The rules for dataclean and installclean are defined in cleanbuild.mk.
 
