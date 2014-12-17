@@ -167,6 +167,15 @@ $(call add_json_list, ProductHiddenAPIStubsTest,         $(PRODUCT_HIDDENAPI_STU
 
 $(call add_json_list, TargetFSConfigGen,                 $(TARGET_FS_CONFIG_GEN))
 
+ifneq ($(LIBART_IMG_BASE),)
+LIBART_IMG_TARGET_BASE_ADDRESS := $(LIBART_IMG_BASE)
+else ifneq ($(filter mips mips64,$(TARGET_ARCH)),)
+LIBART_IMG_TARGET_BASE_ADDRESS := 0x5C000000
+else
+LIBART_IMG_TARGET_BASE_ADDRESS := 0x70000000
+endif
+$(call add_json_str,  LibartImgDeviceBaseAddress,        $(LIBART_IMG_TARGET_BASE_ADDRESS))
+
 $(call add_json_map, VendorVars)
 $(foreach namespace,$(SOONG_CONFIG_NAMESPACES),\
   $(call add_json_map, $(namespace))\
