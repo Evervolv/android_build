@@ -2331,6 +2331,12 @@ else
 $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_RECOVERY_OUT := RECOVERY
 endif
 
+ifeq ($(TARGET_RELEASETOOL_MAKE_RECOVERY_PATCH_SCRIPT),)
+MAKE_RECOVERY_PATCH_SCRIPT := ./build/tools/releasetools/make_recovery_patch
+else
+MAKE_RECOVERY_PATCH_SCRIPT := $(TARGET_RELEASETOOL_MAKE_RECOVERY_PATCH_SCRIPT)
+endif
+
 ifeq ($(AB_OTA_UPDATER),true)
   ifdef BRILLO_VENDOR_PARTITIONS
     $(BUILT_TARGET_FILES_PACKAGE): $(foreach p,$(BRILLO_VENDOR_PARTITIONS),\
@@ -2582,7 +2588,7 @@ endif
 	$(call generate-userimage-prop-dictionary, $(zip_root)/META/misc_info.txt)
 ifneq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MKBOOTIMG) \
-	    ./build/tools/releasetools/make_recovery_patch $(zip_root) $(zip_root)
+	    $(MAKE_RECOVERY_PATCH_SCRIPT) $(zip_root) $(zip_root)
 endif
 ifeq ($(AB_OTA_UPDATER),true)
 	@# When using the A/B updater, include the updater config files in the zip.
