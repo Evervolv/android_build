@@ -3687,6 +3687,11 @@ ifeq ($(AB_OTA_UPDATER),true)
   endif
 endif
 
+MAKE_RECOVERY_PATCH_SCRIPT ?= build/make/tools/releasetools/make_recovery_patch
+ifneq ($(TARGET_RELEASETOOL_MAKE_RECOVERY_PATCH_SCRIPT),)
+MAKE_RECOVERY_PATCH_SCRIPT := $(TARGET_RELEASETOOL_MAKE_RECOVERY_PATCH_SCRIPT)
+endif
+
 # Run fs_config while creating the target files package
 # $1: root directory
 # $2: add prefix
@@ -4033,7 +4038,7 @@ endif
 ifneq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
 ifdef BUILDING_SYSTEM_IMAGE
 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MKBOOTIMG) \
-	    build/make/tools/releasetools/make_recovery_patch $(zip_root) $(zip_root)
+	    $(MAKE_RECOVERY_PATCH_SCRIPT) $(zip_root) $(zip_root)
 endif # BUILDING_SYSTEM_IMAGE
 endif
 ifeq ($(AB_OTA_UPDATER),true)
