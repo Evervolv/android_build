@@ -701,6 +701,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.ShowProgress(system_progress, 0)
 
   if block_based:
+    script.Print("Installing Evervolv")
     # Full OTA is done as an "incremental" against an empty source
     # image.  This has the effect of writing new data from the package
     # to the entire partition, but lets us reuse the updater code that
