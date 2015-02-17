@@ -134,6 +134,7 @@ endif
 # The order of PRODUCT_SYSTEM_SERVER_JARS matters.
 PRODUCT_SYSTEM_SERVER_JARS := \
     com.evervolv.platform \
+    com.evervolv.hardware \
     services \
     ethernet-service \
     wifi-service \
