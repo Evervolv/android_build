@@ -1004,8 +1004,8 @@ endif # PRODUCT_USE_DYNAMIC_PARTITIONS
 BOARD_PREBUILT_HIDDENAPI_DIR ?=
 .KATI_READONLY := BOARD_PREBUILT_HIDDENAPI_DIR
 
-# Rules for Evervolv targets
-include $(SRC_EVERVOLV_DIR)/build/core/config.mk
+# Include any vendor specific config.mk file
+-include vendor/*/build/core/config.mk
 
 # ###############################################################
 # Set up final options.
