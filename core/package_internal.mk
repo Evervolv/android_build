@@ -413,18 +413,29 @@ framework_res_package_export := \
 else # LOCAL_SDK_RES_VERSION
 framework_res_package_export := \
     $(call intermediates-dir-for,APPS,framework-res,,COMMON)/package-export.apk
+
+# Avoid possible circular dependency with our platform-res
+platform_res_package_export := \
+    $(call intermediates-dir-for,APPS,com.evervolv.platform-res,,COMMON)/package-export.apk
+
+platform_res_package_export_deps := \
+    $(dir $(platform_res_package_export))src/R.stamp
+
 endif # LOCAL_SDK_RES_VERSION
 endif # LOCAL_NO_STANDARD_LIBRARIES
 
 all_library_res_package_exports := \
     $(framework_res_package_export) \
+    $(platform_res_package_export) \
     $(foreach lib,$(LOCAL_RES_LIBRARIES),\
         $(call intermediates-dir-for,APPS,$(lib),,COMMON)/package-export.apk)
 
 all_library_res_package_export_deps := \
     $(framework_res_package_export) \
+    $(platform_res_package_export_deps) \
     $(foreach lib,$(LOCAL_RES_LIBRARIES),\
         $(call intermediates-dir-for,APPS,$(lib),,COMMON)/src/R.stamp)
+
 $(resource_export_package) $(R_file_stamp) $(LOCAL_BUILT_MODULE): $(all_library_res_package_export_deps)
 $(LOCAL_INTERMEDIATE_TARGETS): \
     PRIVATE_AAPT_INCLUDES := $(all_library_res_package_exports)
