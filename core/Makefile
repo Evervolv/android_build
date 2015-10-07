@@ -354,7 +354,7 @@ OEM_THUMBPRINT_PROPERTIES := $(filter $(KNOWN_OEM_THUMBPRINT_PROPERTIES),\
     $(PRODUCT_OEM_PROPERTIES))
 
 # Display parameters shown under Settings -> About Phone
-ifeq ($(TARGET_BUILD_VARIANT),user)
+ifneq ($(TARGET_BUILD_VARIANT),eng)
   # User builds should show:
   # release build number or branch.buld_number non-release builds
 
