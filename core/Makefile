@@ -221,19 +221,23 @@ OEM_THUMBPRINT_PROPERTIES := $(filter $(KNOWN_OEM_THUMBPRINT_PROPERTIES),\
     $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_OEM_PROPERTIES))
 
 # Display parameters shown under Settings -> About Phone
-ifeq ($(TARGET_BUILD_VARIANT),user)
-  # User builds should show:
-  # release build number or branch.buld_number non-release builds
+ifeq ($(EV_BUILD),)
+  ifeq ($(TARGET_BUILD_VARIANT),user)
+    # User builds should show:
+    # release build number or branch.buld_number non-release builds
 
-  # Dev. branches should have DISPLAY_BUILD_NUMBER set
-  ifeq (true,$(DISPLAY_BUILD_NUMBER))
-    BUILD_DISPLAY_ID := $(BUILD_ID).$(BUILD_NUMBER_FROM_FILE) $(BUILD_KEYS)
+    # Dev. branches should have DISPLAY_BUILD_NUMBER set
+    ifeq (true,$(DISPLAY_BUILD_NUMBER))
+      BUILD_DISPLAY_ID := $(BUILD_ID).$(BUILD_NUMBER_FROM_FILE) $(BUILD_KEYS)
+    else
+      BUILD_DISPLAY_ID := $(BUILD_ID) $(BUILD_KEYS)
+    endif
   else
-    BUILD_DISPLAY_ID := $(BUILD_ID) $(BUILD_KEYS)
+    # Non-user builds should show detailed build information
+    BUILD_DISPLAY_ID := $(build_desc)
   endif
 else
-  # Non-user builds should show detailed build information
-  BUILD_DISPLAY_ID := $(build_desc)
+    BUILD_DISPLAY_ID := $(BUILD_ID)
 endif
 
 # Accepts a whitespace separated list of product locales such as
