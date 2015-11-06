@@ -31,10 +31,14 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
     # Tell HALs that we're compiling an AOSP build with an in-line kernel
     TARGET_COMPILE_WITH_MSM_KERNEL := true
 
-    ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
-        ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
+    ifneq ($(filter msm7x30 msm8660 msm8960,$(TARGET_BOARD_PLATFORM)),)
+        ifneq ($(BOARD_USES_LEGACY_QCOM_DISPLAY),true)
             # Enable legacy graphics functions
             qcom_flags += -DQCOM_BSP_LEGACY
+        endif
+        # Enable legacy audio functions
+        ifeq ($(BOARD_USES_LEGACY_ALSA_AUDIO),true)
+            qcom_flags += -DLEGACY_ALSA_AUDIO
         endif
     endif
 
