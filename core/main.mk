@@ -405,15 +405,13 @@ ifneq (,$(user_variant))
     enable_target_debugging :=
   endif
 
-  # Disallow mock locations by default for user builds
-  ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=0
-
 else # !user_variant
   # Set device insecure for non-user builds.
   ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
-  # Allow mock locations by default for non user builds
-  ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=1
 endif # !user_variant
+
+# Allow mock locations by default for all build types
+ADDITIONAL_DEFAULT_PROPERTIES += ro.allow.mock.location=0
 
 ifeq (true,$(strip $(enable_target_debugging)))
   # Target is more debuggable and adbd is on by default
