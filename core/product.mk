@@ -299,6 +299,9 @@ _product_stash_var_list += \
 	WITH_DEXPREOPT_BOOT_IMG_ONLY \
 	WITH_DEXPREOPT_APP_IMAGE
 
+_product_stash_var_list += \
+	TARGET_SKIP_DEFAULT_LOCALE \
+
 #
 # Mark the variables in _product_stash_var_list as readonly
 #
