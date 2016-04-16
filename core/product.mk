@@ -311,6 +311,7 @@ _product_stash_var_list += \
 
 _product_stash_var_list += \
 	TARGET_SKIP_DEFAULT_LOCALE \
+	TARGET_SKIP_PRODUCT_DEVICE \
 
 #
 # Mark the variables in _product_stash_var_list as readonly
