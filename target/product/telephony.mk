@@ -21,6 +21,7 @@ PRODUCT_PACKAGES := \
     CarrierConfig \
     Dialer \
     CallLogBackup \
+    messaging \
     InCallUI \
     rild
 
