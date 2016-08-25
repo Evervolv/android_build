@@ -85,6 +85,13 @@ Common options that apply to both of non-A/B and A/B OTAs
       If not set, generates A/B package for A/B device and non-A/B package for
       non-A/B device.
 
+  --motd  <string>
+      Insert a MOTD
+
+  --motd-limit  <int>
+      Limit the MOTD to x characters per line
+      Default 48
+
 Non-A/B OTA specific options
 
   -b  (--binary) <file>
@@ -266,6 +273,8 @@ OPTIONS.output_metadata_path = None
 OPTIONS.disable_fec_computation = False
 OPTIONS.force_non_ab = False
 OPTIONS.boot_variable_file = None
+OPTIONS.motd = None
+OPTIONS.motdLim = 48
 
 
 METADATA_NAME = 'META-INF/com/android/metadata'
@@ -807,6 +816,27 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   # Dump fingerprints
   script.Print("Target: {}".format(target_info.fingerprint))
+
+  if (OPTIONS.motd != None):
+    eachRawMotd = OPTIONS.motd.split("\\n")
+    for eachMotd in eachRawMotd:
+      rawMotd = eachMotd.split()
+      sizedMotd = []
+      for word in rawMotd:
+        sizedMotd += [word[i:i+OPTIONS.motdLim] for i in range(0, len(word), OPTIONS.motdLim)]
+      sizedMotd.reverse()
+      if len(sizedMotd):
+        motdLine = [sizedMotd.pop()]
+      else:
+        motdLine = [""]
+      sizedMotd.reverse()
+      for word in sizedMotd:
+        if ( (motdLine[len(motdLine)-1].__len__() + word.__len__()) < 48):
+          motdLine[len(motdLine)-1] = motdLine[len(motdLine)-1] + " " + word
+        else:
+          motdLine.append(word)
+      for line in motdLine:
+        script.Print(line)
 
   device_specific.FullOTA_InstallBegin()
 
@@ -2113,6 +2143,10 @@ def main(argv):
       OPTIONS.force_non_ab = True
     elif o == "--boot_variable_file":
       OPTIONS.boot_variable_file = a
+    elif o == "--motd":
+      OPTIONS.motd = a
+    elif o == "--motd-limit":
+      OPTIONS.motdLim = a
     else:
       return False
     return True
@@ -2151,6 +2185,8 @@ def main(argv):
                                  "disable_fec_computation",
                                  "force_non_ab",
                                  "boot_variable_file=",
+                                 "motd=",
+                                 "motd-limit=",
                              ], extra_option_handler=option_handler)
 
   if len(args) != 2:

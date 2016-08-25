@@ -135,6 +135,9 @@ UNAME := $(shell uname -sm)
 
 SRC_TARGET_DIR := $(TOPDIR)build/make/target
 
+# Evervolv
+SRC_EVERVOLV_DIR := $(TOPDIR)vendor/ev
+
 # Some specific paths to tools
 SRC_DROIDDOC_DIR := $(TOPDIR)build/make/tools/droiddoc
 
@@ -1046,6 +1049,9 @@ $(foreach device,$(call to-upper,$(BOARD_SUPER_PARTITION_BLOCK_DEVICES)), \
 
 endif # PRODUCT_USE_DYNAMIC_PARTITIONS
 
+# Rules for Evervolv targets
+include $(SRC_EVERVOLV_DIR)/build/core/config.mk
+
 # ###############################################################
 # Set up final options.
 # ###############################################################
@@ -1237,5 +1243,11 @@ endif
 -include external/ltp/android/ltp_package_list.mk
 DEFAULT_DATA_OUT_MODULES := ltp $(ltp_packages) $(kselftest_modules)
 .KATI_READONLY := DEFAULT_DATA_OUT_MODULES
+
+## We need to be sure the global selinux policies are included
+## last, to avoid accidental resetting by device configs
+ifneq (,$(wildcard $(SRC_EVERVOLV_DIR)/sepolicy/sepolicy.mk))
+$(eval include $(SRC_EVERVOLV_DIR)/sepolicy/sepolicy.mk)
+endif
 
 include $(BUILD_SYSTEM)/dumpvar.mk
