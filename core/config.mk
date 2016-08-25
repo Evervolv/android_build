@@ -183,6 +183,9 @@ UNAME := $(shell uname -sm)
 
 SRC_TARGET_DIR := $(TOPDIR)build/make/target
 
+# Evervolv
+SRC_EVERVOLV_DIR := $(TOPDIR)vendor/ev
+
 # Some specific paths to tools
 SRC_DROIDDOC_DIR := $(TOPDIR)build/make/tools/droiddoc
 
@@ -441,6 +444,8 @@ endif
 # Pruned directory options used when using findleaves.py
 # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
 FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(SCAN_EXCLUDE_DIRS) .repo .git)
+
+include $(SRC_EVERVOLV_DIR)/build/target/board/BoardConfigCommon.mk
 
 # The build system exposes several variables for where to find the kernel
 # headers:
@@ -1085,6 +1090,9 @@ endif # PRODUCT_USE_DYNAMIC_PARTITIONS
 BOARD_PREBUILT_HIDDENAPI_DIR ?=
 .KATI_READONLY := BOARD_PREBUILT_HIDDENAPI_DIR
 
+# Rules for Evervolv targets
+include $(SRC_EVERVOLV_DIR)/build/core/config.mk
+
 # ###############################################################
 # Set up final options.
 # ###############################################################
@@ -1251,6 +1259,12 @@ dont_bother_goals := out product-graph
 # Make ANDROID Soong config variables visible to Android.mk files, for
 # consistency with those defined in BoardConfig.mk files.
 include $(BUILD_SYSTEM)/android_soong_config_vars.mk
+
+## We need to be sure the global selinux policies are included
+## last, to avoid accidental resetting by device configs
+ifneq (,$(wildcard device/evervolv/sepolicy/common/sepolicy.mk))
+$(eval include device/evervolv/sepolicy/common/sepolicy.mk)
+endif
 
 ifeq ($(CALLED_FROM_SETUP),true)
 include $(BUILD_SYSTEM)/ninja_config.mk
