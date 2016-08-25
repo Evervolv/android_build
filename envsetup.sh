@@ -210,13 +210,15 @@ function setpaths()
     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.
     export ANDROID_TOOLCHAIN=
     export ANDROID_TOOLCHAIN_2ND_ARCH=
+    export ANDROID_KERNEL_TOOLCHAIN_PATH=
     local ARCH=$(get_build_var TARGET_ARCH)
     case $ARCH in
         x86) toolchaindir=x86/x86_64-linux-android-$targetgccversion/bin
             ;;
         x86_64) toolchaindir=x86/x86_64-linux-android-$targetgccversion/bin
             ;;
-        arm) toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin
+        arm) toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin;
+             legacytoolchaindir=arm/arm-eabi-$targetlegacygccversion/bin
             ;;
         arm64) toolchaindir=aarch64/aarch64-linux-android-$targetgccversion/bin;
                toolchaindir2=arm/arm-linux-androideabi-$targetgccversion2/bin
@@ -236,20 +238,9 @@ function setpaths()
         export ANDROID_TOOLCHAIN_2ND_ARCH=$gccprebuiltdir/$toolchaindir2
     fi
 
-    unset ANDROID_KERNEL_TOOLCHAIN_PATH
-    case $ARCH in
-        arm)
-            # Legacy toolchain configuration used for ARM kernel compilation
-            toolchaindir=arm/arm-eabi-$targetlegacygccversion/bin
-            if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
-                 export ARM_EABI_TOOLCHAIN="$gccprebuiltdir/$toolchaindir"
-                 ANDROID_KERNEL_TOOLCHAIN_PATH="$ARM_EABI_TOOLCHAIN":
-            fi
-            ;;
-        *)
-            # No need to set ARM_EABI_TOOLCHAIN for other ARCHs
-            ;;
-    esac
+    if [ -d "$gccprebuiltdir/$legacytoolchaindir" ]; then
+        export ANDROID_KERNEL_TOOLCHAIN_PATH=$gccprebuiltdir/$legacytoolchaindir
+    fi
 
     export ANDROID_DEV_SCRIPTS=$T/development/scripts:$T/prebuilts/devtools/tools:$T/external/selinux/prebuilts/bin
     export ANDROID_BUILD_PATHS=$(get_build_var ANDROID_BUILD_PATHS):$ANDROID_TOOLCHAIN:$ANDROID_TOOLCHAIN_2ND_ARCH:$ANDROID_KERNEL_TOOLCHAIN_PATH:$ANDROID_DEV_SCRIPTS:
