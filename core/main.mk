@@ -1122,7 +1122,7 @@ clean:
 
 .PHONY: clobber
 clobber:
-	@rm -rf $(OUT_DIR)/*
+	@rm -rf $(OUT_DIR)/* $(OUT_DIR)/..?* $(OUT_DIR)/.[!.]*
 	@echo "Entire build directory removed."
 
 # The rules for dataclean and installclean are defined in cleanbuild.mk.
