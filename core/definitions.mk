@@ -1704,8 +1704,14 @@ endef
 ## Commands for running gcc to link an executable
 ###########################################################
 
+ifeq ($(TARGET_DISABLE_ARM_PIE),true)
+   PIE_EXECUTABLE_TRANSFORM :=
+else
+   PIE_EXECUTABLE_TRANSFORM := -pie
+endif
+
 define transform-o-to-executable-inner
-$(hide) $(PRIVATE_CXX) -pie \
+$(hide) $(PRIVATE_CXX) $(PIE_EXECUTABLE_TRANSFORM) \
 	-nostdlib -Bdynamic \
 	-Wl,-dynamic-linker,$(PRIVATE_LINKER) \
 	-Wl,--gc-sections \
@@ -1787,7 +1793,8 @@ endef
 ifdef BUILD_HOST_static
 HOST_FPIE_FLAGS :=
 else
-HOST_FPIE_FLAGS := -pie
+HOST_FPIE_FLAGS := $(PIE_EXECUTABLE_TRANSFORM)
+
 # Force the correct entry point to workaround a bug in binutils that manifests with -pie
 ifeq ($(HOST_CROSS_OS),windows)
 HOST_CROSS_FPIE_FLAGS += -Wl,-e_mainCRTStartup
