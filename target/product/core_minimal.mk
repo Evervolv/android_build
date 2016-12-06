@@ -36,6 +36,7 @@ PRODUCT_PACKAGES += \
     Shell \
     StatementService \
     WallpaperBackup \
+    WallpaperPicker \
     bcc \
     bu \
     com.android.future.usb.accessory \
