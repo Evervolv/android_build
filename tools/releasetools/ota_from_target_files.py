@@ -453,7 +453,8 @@ def SignOutput(temp_zip_name, output_zip_name):
   ########## Printing of md5sum ##########
   print "############ md5sum ############\n"
   os.system("md5sum " + output_zip_name + " > " + output_zip_name + ".md5sum")
-  os.system("cat " + output_zip_name + ".md5sum")
+  log = open(output_zip_name + ".md5sum", "r").read()
+  print log
   print "\n################################"
   os.system("touch " + output_zip_name.replace(".zip", ".log"))
 
