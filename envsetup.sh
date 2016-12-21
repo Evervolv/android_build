@@ -1646,4 +1646,4 @@ addcompletions
 
 export ANDROID_BUILD_TOP=$(gettop)
 
-. vendor/ev/build/envsetup.sh
+. $ANDROID_BUILD_TOP/vendor/ev/build/envsetup.sh
