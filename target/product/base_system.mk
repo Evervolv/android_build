@@ -361,7 +361,6 @@ PRODUCT_PACKAGES_DEBUG := \
     sqlite3 \
     ss \
     strace \
-    su \
     sanitizer-status \
     tracepath \
     tracepath6 \
@@ -369,6 +368,12 @@ PRODUCT_PACKAGES_DEBUG := \
     unwind_info \
     unwind_reg_info \
     unwind_symbols \
+
+# Conditionally build in su
+ifeq ($(WITH_SU),true)
+PRODUCT_PACKAGES_DEBUG += \
+    su
+endif
 
 # The set of packages whose code can be loaded by the system server.
 PRODUCT_SYSTEM_SERVER_APPS += \
