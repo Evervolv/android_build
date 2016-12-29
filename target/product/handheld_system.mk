@@ -79,7 +79,7 @@ PRODUCT_SYSTEM_SERVER_APPS += \
     KeyChain \
     Telecom \
 
-PRODUCT_COPY_FILES += \
+PRODUCT_COPY_FILES ?= \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
