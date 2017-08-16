@@ -143,6 +143,8 @@ $(call add_json_list, NamespacesToExport,                $(PRODUCT_SOONG_NAMESPA
 
 $(call add_json_list, PgoAdditionalProfileDirs,          $(PGO_ADDITIONAL_PROFILE_DIRS))
 
+$(call add_json_str,  Libart_img_base,                   $(LIBART_IMG_BASE))
+
 _contents := $(_contents)    "VendorVars": {$(newline)
 $(foreach namespace,$(SOONG_CONFIG_NAMESPACES),\
   $(eval _contents := $$(_contents)        "$(namespace)": {$$(newline)) \
