@@ -151,7 +151,7 @@ class EdifyGenerator(object):
            ' || abort("This package is for device: %s; ' +
            'this device is " + getprop("ro.product.device") + ".");' +
            ');') % device
-    self.script.append(cmd)
+    self.script.append(self.WordWrap(cmd))
 
   def AssertSomeBootloader(self, *bootloaders):
     """Asert that the bootloader version is one of *bootloaders."""
