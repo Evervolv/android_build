@@ -23,7 +23,6 @@ PRODUCT_PACKAGES := \
     Camera2 \
     Gallery2 \
     MusicFX \
-    NfcNci \
     OneTimeInitializer \
     Provision \
     SystemUI \
