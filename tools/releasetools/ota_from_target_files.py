@@ -434,8 +434,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   metadata["ota-type"] = "BLOCK"
 
-  ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
-  ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+  #ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+  #ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
 
   # Two-step package strategy (in chronological order, which is *not*
   # the order in which the generated script has things):
