@@ -626,13 +626,11 @@ function lunch()
     if [ $? -ne 0 ]
     then
         # if we can't find a product, try to grab it off the Evervolv github
-        T=$(gettop)
-        pushd $T > /dev/null
-        $T/vendor/ev/build/tools/roomservice.py $product
+        $(gettop)/vendor/ev/build/tools/roomservice.py $product
         popd > /dev/null
         check_product $product
     else
-        $T/vendor/ev/build/tools/roomservice.py $product true
+        $(gettop)/vendor/ev/build/tools/roomservice.py $product true
     fi
     TARGET_PRODUCT=$product \
     TARGET_BUILD_VARIANT=$variant \
