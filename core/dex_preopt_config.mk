@@ -52,7 +52,7 @@ DEX_PREOPT_WITH_UPDATABLE_BCP := true
 
 # Conditional to building on linux, as dex2oat currently does not work on darwin.
 ifeq ($(HOST_OS),linux)
-  ifeq (eng,$(TARGET_BUILD_VARIANT))
+  ifneq (user,$(TARGET_BUILD_VARIANT))
     # For an eng build only pre-opt the boot image and system server. This gives reasonable performance
     # and still allows a simple workflow: building in frameworks/base and syncing.
     WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY ?= true
