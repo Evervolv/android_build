@@ -221,6 +221,8 @@ AVB_FOOTER_ARGS_BY_PARTITION = {
     'vbmeta_vendor': 'avb_vbmeta_vendor_args',
 }
 
+OPTIONS.prebuilt_odm_image = False
+OPTIONS.prebuilt_vendor_image = False
 
 # Check that AVB_FOOTER_ARGS_BY_PARTITION is in sync with AVB_PARTITIONS.
 for partition in common.AVB_PARTITIONS:
@@ -534,7 +536,16 @@ def ProcessTargetFiles(input_tf_zip, output_tf_zip, misc_info,
 
   for info in input_tf_zip.infolist():
     filename = info.filename
-    if filename.startswith("IMAGES/"):
+
+    should_copy_vendor_image = (OPTIONS.prebuilt_vendor_image and
+                                filename.startswith("IMAGES/") and
+                                filename.endswith("vendor.img"))
+
+    should_copy_odm_image = (OPTIONS.prebuilt_odm_image and
+                                filename.startswith("IMAGES/") and
+                                filename.endswith("odm.img"))
+
+    if filename.startswith("IMAGES/") and not should_copy_vendor_image and not should_copy_odm_image:
       continue
 
     # Skip OTA-specific images (e.g. split super images), which will be
@@ -1560,6 +1571,9 @@ def main(argv):
                                allowZip64=True)
 
   misc_info = common.LoadInfoDict(input_zip)
+
+  OPTIONS.prebuilt_vendor_image = misc_info.get("board_prebuilt_vendor_image") == "true"
+  OPTIONS.prebuilt_odm_image = misc_info.get("board_prebuilt_odm_image") == "true"
 
   BuildKeyMap(misc_info, key_mapping_options)
 
