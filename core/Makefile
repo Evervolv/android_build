@@ -3889,6 +3889,9 @@ endif
 ifdef BOARD_BOOTIMAGE_PARTITION_SIZE
 	$(hide) echo "boot_size=$(BOARD_BOOTIMAGE_PARTITION_SIZE)" >> $(zip_root)/META/misc_info.txt
 endif
+ifeq ($(BOARD_RAMDISK_USE_LZ4),true)
+	$(hide) echo "lz4_ramdisks=true" >> $(zip_root)/META/misc_info.txt
+endif
 ifeq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
 	$(hide) echo "no_recovery=true" >> $(zip_root)/META/misc_info.txt
 endif
