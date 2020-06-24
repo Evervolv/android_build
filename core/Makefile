@@ -3501,6 +3501,7 @@ OTATOOLS :=  $(HOST_OUT_EXECUTABLES)/minigzip \
   $(HOST_OUT_EXECUTABLES)/care_map_generator \
   $(HOST_OUT_EXECUTABLES)/fc_sort \
   $(HOST_OUT_EXECUTABLES)/sefcontext_compile \
+  $(HOST_OUT_EXECUTABLES)/lz4 \
   $(LPMAKE) \
   $(AVBTOOL) \
   $(BLK_ALLOC_TO_BASE_FS) \
