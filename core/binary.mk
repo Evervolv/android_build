@@ -45,7 +45,8 @@ endif
 my_soong_problems :=
 
 # Automatically replace the old-style kernel header include with a dependency
-# on the generated_kernel_headers header library
+# on the generated_kernel_headers header library when building inline
+ifeq ($(INLINE_KERNEL_BUILDING),true)
 ifneq (,$(findstring $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include,$(LOCAL_C_INCLUDES)))
   LOCAL_C_INCLUDES := $(patsubst $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include,,$(LOCAL_C_INCLUDES))
   LOCAL_HEADER_LIBRARIES += generated_kernel_headers
@@ -64,16 +65,10 @@ ifneq (,$(findstring $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr,$(LOCAL_ADDITION
   LOCAL_ADDITIONAL_DEPENDENCIES := $(patsubst $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr,,$(LOCAL_ADDITIONAL_DEPENDENCIES))
 endif
 
-# Automatically replace device_kernel_headers with generated_kernel_headers
+# Replace device_kernel_headers with generated_kernel_headers
 ifneq (,$(findstring device_kernel_headers,$(LOCAL_HEADER_LIBRARIES)))
-  LOCAL_HEADER_LIBRARIES := $(patsubst device_kernel_headers,,$(LOCAL_HEADER_LIBRARIES))
-  LOCAL_HEADER_LIBRARIES += generated_kernel_headers
+  LOCAL_HEADER_LIBRARIES := $(patsubst device_kernel_headers,generated_kernel_headers,$(LOCAL_HEADER_LIBRARIES))
 endif
-
-# Automatically replace qti_kernel_headers with generated_kernel_headers
-ifneq (,$(findstring qti_kernel_headers,$(LOCAL_HEADER_LIBRARIES)))
-  LOCAL_HEADER_LIBRARIES := $(patsubst qti_kernel_headers,,$(LOCAL_HEADER_LIBRARIES))
-  LOCAL_HEADER_LIBRARIES += generated_kernel_headers
 endif
 
 # The following LOCAL_ variables will be modified in this file.
