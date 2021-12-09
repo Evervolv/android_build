@@ -60,6 +60,12 @@ ifneq (,$(findstring device_kernel_headers,$(LOCAL_HEADER_LIBRARIES)))
   LOCAL_HEADER_LIBRARIES += generated_kernel_headers
 endif
 
+# Automatically replace qti_kernel_headers with generated_kernel_headers
+ifneq (,$(findstring qti_kernel_headers,$(LOCAL_HEADER_LIBRARIES)))
+  LOCAL_HEADER_LIBRARIES := $(patsubst qti_kernel_headers,,$(LOCAL_HEADER_LIBRARIES))
+  LOCAL_HEADER_LIBRARIES += generated_kernel_headers
+endif
+
 # The following LOCAL_ variables will be modified in this file.
 # Because the same LOCAL_ variables may be used to define modules for both 1st arch and 2nd arch,
 # we can't modify them in place.
