@@ -32,6 +32,9 @@ echo "ro.build.host=$BUILD_HOSTNAME"
 # from go/arc-android-sigprop-changes have been achieved.
 echo "ro.build.tags?=$BUILD_VERSION_TAGS"
 echo "ro.build.flavor=$TARGET_BUILD_FLAVOR"
+if [ -n "$BOARD_BUILD_SYSTEM_ROOT_IMAGE" ] ; then
+  echo "ro.build.system_root_image=$BOARD_BUILD_SYSTEM_ROOT_IMAGE"
+fi
 
 # These values are deprecated, use "ro.product.cpu.abilist"
 # instead (see below).
