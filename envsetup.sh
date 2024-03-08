@@ -825,11 +825,20 @@ function lunch()
     # Split string on the '-' character.
     IFS="-" read -r product release variant <<< "$selection"
 
+    # Assume release is not defined.
+    if [[ -z "$variant" ]]
+    then
+        # Split string on the '-' character.
+        IFS="-" read -r product variant <<< "$selection"
+        release=$(cat vendor/ev/vars/aosp_target_release 2>/dev/null)
+    fi
+
     if [[ -z "$product" ]] || [[ -z "$release" ]] || [[ -z "$variant" ]]
     then
         echo
         echo "Invalid lunch combo: $selection"
         echo "Valid combos must be of the form <product>-<release>-<variant>"
+        echo "or <product>-<variant>"
         return 1
     fi
 
