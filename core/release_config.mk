@@ -102,7 +102,7 @@ ifeq ($(TARGET_RELEASE),)
     # Instead of leaving this string empty, we want to default to a valid
     # setting.  Full builds coming through this path is a bug, but in case
     # of such a bug, we want to at least get consistent, valid results.
-    TARGET_RELEASE = trunk_staging
+    TARGET_RELEASE = $(shell cat $(SRC_EVERVOLV_DIR)/vars/aosp_target_release 2>/dev/null)
 endif
 
 ifeq ($(filter $(_all_release_configs), $(TARGET_RELEASE)),)
