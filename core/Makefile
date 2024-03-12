@@ -1331,8 +1331,14 @@ endif
 
 INTERNAL_BOOTIMAGE_FILES := $(filter-out --%,$(INTERNAL_BOOTIMAGE_ARGS))
 
-# TODO(b/241346584) Remove this when BOARD_BUILD_SYSTEM_ROOT_IMAGE is deprecated
-INTERNAL_KERNEL_CMDLINE := $(strip $(INTERNAL_KERNEL_CMDLINE) buildvariant=$(TARGET_BUILD_VARIANT))
+ifeq ($(PRODUCT_SUPPORTS_VERITY),true)
+ifeq ($(BOARD_BUILD_SYSTEM_ROOT_IMAGE),true)
+VERITY_KEYID := veritykeyid=id:`openssl x509 -in $(PRODUCT_VERITY_SIGNING_KEY).x509.pem -text \
+                | grep keyid | sed 's/://g' | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]' | sed 's/keyid//g'`
+endif
+endif
+
+INTERNAL_KERNEL_CMDLINE := $(strip $(INTERNAL_KERNEL_CMDLINE) buildvariant=$(TARGET_BUILD_VARIANT) $(VERITY_KEYID))
 
 # kernel cmdline/base/pagesize in boot.
 # - If using GKI, use GENERIC_KERNEL_CMDLINE. Remove kernel base and pagesize because they are
@@ -1394,7 +1400,30 @@ bootimage-nodeps: $(MKBOOTIMG) $(AVBTOOL) $(BOARD_AVB_BOOT_KEY_PATH)
 	@echo "make $@: ignoring dependencies"
 	$(foreach b,$(INSTALLED_BOOTIMAGE_TARGET),$(call build_boot_board_avb_enabled,$(b)))
 
-else ifeq (true,$(PRODUCT_SUPPORTS_VBOOT)) # BOARD_AVB_ENABLE != true
+else ifeq (true,$(PRODUCT_SUPPORTS_BOOT_SIGNER)) # BOARD_AVB_ENABLE != true
+
+# $1: boot image target
+define build_boot_supports_boot_signer
+  $(MKBOOTIMG) --kernel $(call bootimage-to-kernel,$(1)) $(INTERNAL_BOOTIMAGE_ARGS) $(INTERNAL_MKBOOTIMG_VERSION_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $(1)
+  $(BOOT_SIGNER) /boot $@ $(PRODUCT_VERITY_SIGNING_KEY).pk8 $(PRODUCT_VERITY_SIGNING_KEY).x509.pem $(1)
+  $(call assert-max-image-size,$(1),$(call get-bootimage-partition-size,$(1),boot))
+endef
+
+$(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES) $(BOOT_SIGNER)
+	$(call pretty,"Target boot image: $@")
+	$(call build_boot_supports_boot_signer,$@)
+
+$(call declare-1p-container,$(INSTALLED_BOOTIMAGE_TARGET),)
+$(call declare-container-license-deps,$(INSTALLED_BOOTIMAGE_TARGET),$(INTERNAL_BOOTIMAGE_FILES),$(PRODUCT_OUT)/:/)
+
+UNMOUNTED_NOTICE_DEPS += $(INSTALLED_BOOTIMAGE_TARGET)
+
+.PHONY: bootimage-nodeps
+bootimage-nodeps: $(MKBOOTIMG) $(BOOT_SIGNER)
+	@echo "make $@: ignoring dependencies"
+	$(foreach b,$(INSTALLED_BOOTIMAGE_TARGET),$(call build_boot_supports_boot_signer,$(b)))
+
+else ifeq (true,$(PRODUCT_SUPPORTS_VBOOT)) # PRODUCT_SUPPORTS_BOOT_SIGNER != true
 
 # $1: boot image target
 define build_boot_supports_vboot
@@ -1580,6 +1609,10 @@ endif # BUILDING_INIT_BOOT_IMAGE is not true
 # vendor boot image
 INSTALLED_FILES_OUTSIDE_IMAGES := $(filter-out $(TARGET_VENDOR_RAMDISK_OUT)/%, $(INSTALLED_FILES_OUTSIDE_IMAGES))
 ifeq ($(BUILDING_VENDOR_BOOT_IMAGE),true)
+
+ifeq ($(PRODUCT_SUPPORTS_VERITY),true)
+  $(error vboot 1.0 does not support vendor_boot partition)
+endif
 
 INTERNAL_VENDOR_RAMDISK_FILES := $(filter $(TARGET_VENDOR_RAMDISK_OUT)/%, \
     $(ALL_DEFAULT_INSTALLED_MODULES))
@@ -2115,6 +2148,13 @@ ifneq ($(filter \
 INTERNAL_USERIMAGES_DEPS += $(MKSQUASHFSUSERIMG)
 endif
 
+ifeq (true,$(PRODUCT_SUPPORTS_VERITY))
+INTERNAL_USERIMAGES_DEPS += $(BUILD_VERITY_METADATA) $(BUILD_VERITY_TREE) $(APPEND2SIMG) $(VERITY_SIGNER)
+ifeq (true,$(PRODUCT_SUPPORTS_VERITY_FEC))
+INTERNAL_USERIMAGES_DEPS += $(FEC)
+endif
+endif
+
 ifeq ($(BOARD_AVB_ENABLE),true)
 INTERNAL_USERIMAGES_DEPS += $(AVBTOOL)
 endif
@@ -2130,6 +2170,14 @@ $(call merge-fc-files, \
 SELINUX_FC := $(call intermediates-dir-for,ETC,file_contexts.bin)/file_contexts.bin
 
 INTERNAL_USERIMAGES_DEPS += $(SELINUX_FC)
+
+ifeq (true,$(PRODUCT_USE_DYNAMIC_PARTITIONS))
+
+ifeq ($(PRODUCT_SUPPORTS_VERITY),true)
+  $(error vboot 1.0 doesn't support logical partition)
+endif
+
+endif # PRODUCT_USE_DYNAMIC_PARTITIONS
 
 # $(1) the partition name (eg system)
 # $(2) the image prop file
@@ -2246,6 +2294,11 @@ $(if $(BOARD_EXT4_SHARE_DUP_BLOCKS),$(hide) echo "ext4_share_dup_blocks=$(BOARD_
 $(if $(BOARD_F2FS_BLOCKSIZE),$(hide) echo "f2fs_blocksize=$(BOARD_F2FS_BLOCKSIZE)" >> $(1))
 $(if $(BOARD_FLASH_LOGICAL_BLOCK_SIZE), $(hide) echo "flash_logical_block_size=$(BOARD_FLASH_LOGICAL_BLOCK_SIZE)" >> $(1))
 $(if $(BOARD_FLASH_ERASE_BLOCK_SIZE), $(hide) echo "flash_erase_block_size=$(BOARD_FLASH_ERASE_BLOCK_SIZE)" >> $(1))
+$(if $(PRODUCT_SUPPORTS_BOOT_SIGNER),$(hide) echo "boot_signer=$(PRODUCT_SUPPORTS_BOOT_SIGNER)" >> $(1))
+$(if $(PRODUCT_SUPPORTS_VERITY),$(hide) echo "verity=$(PRODUCT_SUPPORTS_VERITY)" >> $(1))
+$(if $(PRODUCT_SUPPORTS_VERITY),$(hide) echo "verity_key=$(PRODUCT_VERITY_SIGNING_KEY)" >> $(1))
+$(if $(PRODUCT_SUPPORTS_VERITY),$(hide) echo "verity_signer_cmd=$(notdir $(VERITY_SIGNER))" >> $(1))
+$(if $(PRODUCT_SUPPORTS_VERITY_FEC),$(hide) echo "verity_fec=$(PRODUCT_SUPPORTS_VERITY_FEC)" >> $(1))
 $(if $(filter eng, $(TARGET_BUILD_VARIANT)),$(hide) echo "verity_disable=true" >> $(1))
 $(if $(PRODUCT_SYSTEM_VERITY_PARTITION),$(hide) echo "system_verity_block_device=$(PRODUCT_SYSTEM_VERITY_PARTITION)" >> $(1))
 $(if $(PRODUCT_VENDOR_VERITY_PARTITION),$(hide) echo "vendor_verity_block_device=$(PRODUCT_VENDOR_VERITY_PARTITION)" >> $(1))
@@ -2784,6 +2837,12 @@ define build-recoveryimage-target
     $(MKBOOTIMG) $(if $(strip $(2)),--kernel $(strip $(2))) $(INTERNAL_RECOVERYIMAGE_ARGS) \
                  $(INTERNAL_MKBOOTIMG_VERSION_ARGS) \
                  $(BOARD_RECOVERY_MKBOOTIMG_ARGS) --output $(1))
+  $(if $(filter true,$(PRODUCT_SUPPORTS_BOOT_SIGNER)),\
+    $(if $(filter true,$(BOARD_USES_RECOVERY_AS_BOOT)),\
+      $(BOOT_SIGNER) /boot $(1) $(PRODUCT_VERITY_SIGNING_KEY).pk8 $(PRODUCT_VERITY_SIGNING_KEY).x509.pem $(1),\
+      $(BOOT_SIGNER) /recovery $(1) $(PRODUCT_VERITY_SIGNING_KEY).pk8 $(PRODUCT_VERITY_SIGNING_KEY).x509.pem $(1)\
+    )\
+  )
   $(if $(filter true,$(PRODUCT_SUPPORTS_VBOOT)), \
     $(VBOOT_SIGNER) $(FUTILITY) $(1).unsigned $(PRODUCT_VBOOT_SIGNING_KEY).vbpubk $(PRODUCT_VBOOT_SIGNING_KEY).vbprivk $(PRODUCT_VBOOT_SIGNING_SUBKEY).vbprivk $(1).keyblock $(1))
   $(if $(filter true,$(BOARD_USES_RECOVERY_AS_BOOT)), \
@@ -2796,6 +2855,9 @@ define build-recoveryimage-target
 endef
 
 recoveryimage-deps := $(MKBOOTIMG) $(recovery_ramdisk) $(recovery_kernel)
+ifeq (true,$(PRODUCT_SUPPORTS_BOOT_SIGNER))
+  recoveryimage-deps += $(BOOT_SIGNER)
+endif
 ifeq (true,$(PRODUCT_SUPPORTS_VBOOT))
   recoveryimage-deps += $(VBOOT_SIGNER)
 endif
