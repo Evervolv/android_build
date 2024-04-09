@@ -1061,7 +1061,9 @@ $(INSTALLED_DTBIMAGE_TARGET) : $(sort $(wildcard $(BOARD_PREBUILT_DTBIMAGE_DIR)/
 endif
 endif
 
+ifdef BOARD_KERNEL_SEPARATED_DT
 INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+endif
 
 # -----------------------------------------------------------------
 # the ramdisk
